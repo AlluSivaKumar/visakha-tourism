@@ -1,0 +1,19 @@
+# Netlify Configuration for Visakha Tourism Frontend
+
+[build]
+  # Directory where frontend HTML/CSS/JS files reside
+  publish = "frontend"
+
+# Reverse Proxy for Spring Boot Backend API
+# Replace 'https://visakha-backend.onrender.com' with your actual backend URL once deployed
+[[redirects]]
+  from = "/api/*"
+  to = "https://visakha-tourism-backend.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Fallback for root path
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200

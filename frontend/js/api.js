@@ -1,6 +1,6 @@
 // Visakha Tourism Centralized API Client
 
-const API_BASE = '/api';
+const API_BASE = window.VT_API_BASE || '/api';
 
 class ApiClient {
   async request(endpoint, options = {}) {
