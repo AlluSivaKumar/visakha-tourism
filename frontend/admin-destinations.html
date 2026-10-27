@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Destinations - Visakha Tourism Admin</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="brand-icon" style="width:34px; height:34px; font-size:1rem;">🌊</div>
+        <div class="admin-sidebar-logo">Visakha Admin</div>
+        <span class="admin-sidebar-badge">Portal</span>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="/admin-dashboard.html" class="admin-nav-item">
+          <span>📊</span> Overview
+        </a>
+        <a href="/admin-destinations.html" class="admin-nav-item active">
+          <span>🗺️</span> Destinations
+        </a>
+        <a href="/admin-destination-form.html" class="admin-nav-item">
+          <span>➕</span> Add Destination
+        </a>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <a href="/index.html" target="_blank" class="admin-nav-item" style="color:#38bdf8;">
+          <span>🌐</span> View Public Site ↗
+        </a>
+        <button id="admin-logout-btn" class="admin-nav-item" style="background:transparent; border:none; cursor:pointer; color:#f87171; text-align:left; width:100%;">
+          <span>🚪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Admin Main -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-breadcrumb">Destination Catalog Management</div>
+        <div class="admin-user-pill">
+          <div class="admin-avatar">A</div>
+          <span id="admin-user-name" style="font-weight:700; font-size:0.92rem;">Administrator</span>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <!-- Top Action Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+          <div>
+            <h1 style="font-size:1.6rem; font-weight:800; color:var(--text-main);">All Destinations</h1>
+            <p id="table-count-text" style="color:var(--text-muted); font-size:0.9rem;">Loading catalog...</p>
+          </div>
+          <a href="/admin-destination-form.html" class="btn btn-primary">
+            <span>➕</span> Add New Destination
+          </a>
+        </div>
+
+        <!-- Filter Controls Card -->
+        <div class="data-card" style="padding:16px 20px; margin-bottom:24px;">
+          <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
+            <div style="flex:1; min-width:240px;">
+              <input type="text" id="table-search-input" class="form-input" placeholder="Search by destination name or address..." style="padding:8px 12px; font-size:0.9rem;">
+            </div>
+
+            <div style="width:200px;">
+              <select id="table-category-filter" class="form-select" style="padding:8px 12px; font-size:0.9rem;">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+
+            <div style="width:160px;">
+              <select id="table-status-filter" class="form-select" style="padding:8px 12px; font-size:0.9rem;">
+                <option value="">All Statuses</option>
+                <option value="true">Published</option>
+                <option value="false">Hidden / Draft</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Destinations Table Card -->
+        <div class="data-card">
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Image</th>
+                  <th>Destination Name & Address</th>
+                  <th>Category</th>
+                  <th>Publication Status</th>
+                  <th>Last Updated</th>
+                  <th style="width: 140px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="destinations-table-body">
+                <!-- Injected by admin.js -->
+                <tr><td colspan="6" style="text-align:center; padding:40px;"><span class="spinner spinner-primary"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div style="display:flex; justify-content:center; align-items:center; padding:18px 24px; border-top:1px solid var(--border-color);">
+            <div id="table-pagination" style="display:flex; align-items:center;"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/js/admin.js"></script>
+</body>
+</html>

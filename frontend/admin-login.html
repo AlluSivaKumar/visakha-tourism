@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal Login - Visakha Tourism</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      background: radial-gradient(circle at top right, #0c4a6e 0%, #0f172a 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimal Header -->
+  <header style="padding: 24px 0;">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+      <a href="/index.html" class="brand-logo" style="color:#ffffff;">
+        <div class="brand-icon" style="background:#0284c7;">🌊</div>
+        <span>Visakha Tourism</span>
+      </a>
+      <a href="/index.html" class="btn btn-sm btn-outline" style="border-color:rgba(255,255,255,0.25); color:#ffffff; background:transparent;">
+        ← Back to Public Website
+      </a>
+    </div>
+  </header>
+
+  <!-- Admin Login Card -->
+  <main class="auth-wrapper" style="min-height: calc(100vh - 160px);">
+    <div class="auth-card" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); border-color:#334155;">
+      <div class="auth-header">
+        <div style="width:54px; height:54px; border-radius:50%; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 14px;">
+          🛡️
+        </div>
+        <span class="auth-badge" style="background:#0284c7; color:#ffffff;">Restricted Access</span>
+        <h1 class="auth-title" style="font-size:1.75rem;">Administrator Portal</h1>
+        <p class="auth-subtitle">Sign in with authorized administrator credentials</p>
+      </div>
+
+      <div id="admin-alert" style="display:none; padding:12px 16px; border-radius:var(--radius-md); font-size:0.88rem; margin-bottom:20px;"></div>
+
+      <form id="admin-login-form">
+        <div class="form-group">
+          <label for="admin-email" class="form-label">Administrator Email</label>
+          <input type="email" id="admin-email" class="form-input" placeholder="sivakumarallu4@gmail.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="admin-password" class="form-label">Administrator Password</label>
+          <input type="password" id="admin-password" class="form-input" placeholder="••••••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="admin-submit-btn" class="btn btn-primary" style="width:100%; margin-top:10px; padding:12px; background:linear-gradient(135deg, #0284c7, #0d9488);">
+          Authenticate as Admin
+        </button>
+      </form>
+
+      <div style="margin-top:28px; padding:16px; background:#f8fafc; border-radius:var(--radius-md); border:1px solid var(--border-color); font-size:0.82rem; color:var(--text-muted); line-height:1.6;">
+        <strong>Administrator Contact & Access:</strong><br>
+        Admin: <strong style="color:var(--text-main);">Siva Kumar Allu</strong><br>
+        Email: <code style="color:#0369a1;font-weight:600;">sivakumarallu4@gmail.com</code><br>
+        Phone: <strong style="color:var(--text-main);">6281429422</strong><br>
+        Location: <strong style="color:var(--text-main);">Gajuwaka, Visakhapatnam</strong><br>
+        Password: <code style="color:#0369a1;font-weight:600;">Admin@Vizag2026</code>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { api, showToast } from '/js/api.js';
+    import { setSession, isAdmin } from '/js/auth.js';
+
+    if (isAdmin()) {
+      window.location.href = '/admin-dashboard.html';
+    }
+
+    const form = document.getElementById('admin-login-form');
+    const alertBox = document.getElementById('admin-alert');
+    const submitBtn = document.getElementById('admin-submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const email = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Authenticating...';
+
+      try {
+        const res = await api.post('/auth/admin-login', { email, password });
+        const authData = res.data;
+
+        setSession(authData.token, {
+          id: authData.userId,
+          name: authData.name,
+          email: authData.email,
+          role: authData.role
+        });
+
+        showToast('Admin authentication confirmed!', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/admin-dashboard.html';
+        }, 600);
+
+      } catch (err) {
+        alertBox.style.display = 'block';
+        alertBox.style.background = '#fee2e2';
+        alertBox.style.color = '#b91c1c';
+        alertBox.style.border = '1px solid #f87171';
+        alertBox.textContent = err.message || 'Authentication failed. Please verify credentials.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Authenticate as Admin';
+      }
+    });
+  </script>
+</body>
+</html>

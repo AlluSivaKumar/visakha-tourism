@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Destinations - Visakha Tourism</title>
+  <meta name="description" content="Browse over 50 verified attractions across Visakhapatnam, Araku Valley, Bheemili, and Eastern Ghats.">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .filter-bar {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .filter-controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .filter-search-box {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+    .filter-search-input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .filter-search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .filter-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    .filter-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-pill {
+      background: #f1f5f9;
+      border: 1px solid transparent;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-pill:hover {
+      background: #e2e8f0;
+    }
+    .filter-pill.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/index.html" class="brand-logo">
+        <div class="brand-icon">🌊</div>
+        <span>Visakha Tourism</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html" class="nav-link">Home</a></li>
+        <li><a href="/destinations.html" class="nav-link active">Destinations</a></li>
+        <li><a href="/itineraries.html" class="nav-link">Travel Plans & Budget</a></li>
+        <li><a href="/index.html#highlights" class="nav-link">Highlights</a></li>
+        <li><a href="/index.html#about" class="nav-link">About Vizag</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Injected dynamically by auth.js -->
+        <a href="/login.html" class="btn btn-sm btn-outline">Log In</a>
+        <a href="/register.html" class="btn btn-sm btn-primary">Sign Up</a>
+      </div>
+
+      <button class="mobile-toggle" aria-label="Toggle navigation">☰</button>
+    </div>
+  </header>
+
+  <!-- Page Banner -->
+  <section style="background: linear-gradient(135deg, #0369a1, #0f172a); color: #ffffff; padding: 48px 0 36px;">
+    <div class="container">
+      <div style="max-width: 720px;">
+        <span class="section-badge" style="background: rgba(255,255,255,0.18); color: #ffffff; margin-bottom: 12px;">Destination Catalog</span>
+        <h1 style="font-size: 2.6rem; font-weight: 800; margin-bottom: 10px;">Explore Visakhapatnam & Beyond</h1>
+        <p style="color: #e2e8f0; font-size: 1.05rem;">
+          Discover real, verified tourist attractions, hill ranges, museums, and temples. Click Directions to navigate instantly with Google Maps.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog Section -->
+  <main class="container" style="padding-top: 36px; padding-bottom: 72px;">
+    <!-- Filter and Search Bar -->
+    <div class="filter-bar">
+      <div class="filter-controls-row">
+        <div class="filter-search-box">
+          <span class="filter-search-icon">🔍</span>
+          <input type="text" id="catalog-search-input" class="filter-search-input" placeholder="Search by destination name, location, or keyword..." aria-label="Search destinations">
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px;">
+          <label for="catalog-sort-select" style="font-size:0.88rem; font-weight:600; color:var(--text-muted); white-space:nowrap;">Sort by:</label>
+          <select id="catalog-sort-select" class="form-select" style="width: auto; padding: 8px 12px; font-size: 0.88rem;">
+            <option value="name">Name (A - Z)</option>
+            <option value="name_desc">Name (Z - A)</option>
+            <option value="updated_desc">Recently Updated</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="category-filter-pills" class="filter-pills-row">
+        <!-- Populated by destinations.js -->
+      </div>
+    </div>
+
+    <!-- Results Count Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <span id="results-count-text" style="font-size: 0.92rem; font-weight: 600; color: var(--text-muted);">
+        Loading destinations...
+      </span>
+    </div>
+
+    <!-- Destinations Grid -->
+    <div id="destinations-grid" class="destinations-grid">
+      <!-- Injected by destinations.js with initial 20 items -->
+    </div>
+
+    <!-- Load More Section -->
+    <div id="load-more-container" class="load-more-container">
+      <button id="load-more-btn" class="btn btn-primary btn-lg" style="min-width: 280px;">
+        Load More Destinations
+      </button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <span style="font-size:1.6rem;">🌊</span> Visakha Tourism
+          </div>
+          <p class="footer-desc">
+            Your official digital guide to exploring the City of Destiny. Discover scenic beaches, mountain getaways, spiritual landmarks, and naval heritage.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="/destinations.html">All Destinations</a></li>
+            <li><a href="/destinations.html?category=1">Beaches</a></li>
+            <li><a href="/destinations.html?category=2">Hills & Nature</a></li>
+            <li><a href="/destinations.html?category=4">Museums</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Account</h4>
+          <ul class="footer-links">
+            <li><a href="/login.html">User Login</a></li>
+            <li><a href="/register.html">Create Account</a></li>
+            <li><a href="/profile.html">My Profile</a></li>
+            <li><a href="/admin-login.html">Admin Portal</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Contact & Help</h4>
+          <ul class="footer-links">
+            <li><span style="color:#cbd5e1;">📍 Gajuwaka, Visakhapatnam, AP</span></li>
+            <li><span style="color:#cbd5e1;">✉ sivakumarallu4@gmail.com</span></li>
+            <li><span style="color:#cbd5e1;">📞 +91 6281429422</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Visakha Tourism Application. Managed by Siva Kumar Allu, Gajuwaka, Visakhapatnam. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/auth.js"></script>
+  <script type="module" src="/js/destinations.js"></script>
+</body>
+</html>

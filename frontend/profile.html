@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - Visakha Tourism</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/index.html" class="brand-logo">
+        <div class="brand-icon">🌊</div>
+        <span>Visakha Tourism</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html" class="nav-link">Home</a></li>
+        <li><a href="/destinations.html" class="nav-link">Destinations</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Injected by auth.js -->
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 56px 20px 80px; max-width: 720px;">
+    <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:36px; box-shadow:var(--shadow-md);">
+      <div style="display:flex; align-items:center; gap:20px; margin-bottom:32px; border-bottom:1px solid var(--border-color); padding-bottom:24px;">
+        <div style="width:68px; height:68px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--secondary)); color:#ffffff; font-size:1.8rem; font-weight:800; display:flex; align-items:center; justify-content:center;">
+          👤
+        </div>
+        <div>
+          <h1 id="profile-name-heading" style="font-size:1.6rem; font-weight:800; color:var(--text-main); margin-bottom:4px;">Loading Traveler...</h1>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span id="profile-role-badge" class="section-badge" style="margin-bottom:0;">Traveler</span>
+            <span id="profile-verified-badge" class="status-pill status-published">Verified Account</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-alert" style="display:none; padding:12px 16px; border-radius:var(--radius-md); font-size:0.88rem; margin-bottom:20px;"></div>
+
+      <form id="profile-form">
+        <div class="form-group">
+          <label for="profile-email" class="form-label">Email Address (Registered)</label>
+          <input type="email" id="profile-email" class="form-input" disabled style="background:#f1f5f9; cursor:not-allowed;">
+          <div class="form-hint">Email address cannot be changed once verified.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="profile-name" class="form-label">Display Name</label>
+          <input type="text" id="profile-name" class="form-input" required minlength="2">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Account Created</label>
+          <div id="profile-joined-text" style="font-size:0.92rem; color:var(--text-muted); padding:6px 0;">-</div>
+        </div>
+
+        <div style="display:flex; gap:14px; margin-top:28px;">
+          <button type="submit" id="save-profile-btn" class="btn btn-primary" style="flex:1;">
+            Update Profile
+          </button>
+          <button type="button" id="profile-logout-btn" class="btn btn-outline" style="color:var(--danger);">
+            Logout
+          </button>
+        </div>
+      </form>
+
+      <div id="admin-panel-link-card" style="display:none; margin-top:36px; padding:20px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:var(--radius-md); text-align:center;">
+        <h4 style="color:#0369a1; margin-bottom:6px;">Administrator Privileges Detected</h4>
+        <p style="font-size:0.88rem; color:#0284c7; margin-bottom:14px;">You have permission to manage destinations, categories, and photos.</p>
+        <a href="/admin-dashboard.html" class="btn btn-primary btn-sm">Open Admin Dashboard →</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { api, showToast } from '/js/api.js';
+    import { requireAuth, setSession, getUser, logout } from '/js/auth.js';
+
+    if (!requireAuth()) {
+      // redirected
+    } else {
+      loadProfile();
+    }
+
+    async function loadProfile() {
+      try {
+        const res = await api.get('/auth/me');
+        const user = res.data;
+
+        document.getElementById('profile-name-heading').textContent = user.name;
+        document.getElementById('profile-name').value = user.name;
+        document.getElementById('profile-email').value = user.email;
+        document.getElementById('profile-role-badge').textContent = user.role === 'ROLE_ADMIN' ? 'Administrator' : 'Verified Traveler';
+        document.getElementById('profile-joined-text').textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Recently Joined';
+
+        if (user.role === 'ROLE_ADMIN') {
+          document.getElementById('admin-panel-link-card').style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Failed to load profile:', err);
+        showToast('Session expired. Please log in again.', 'error');
+        setTimeout(() => logout(), 1000);
+      }
+    }
+
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newName = document.getElementById('profile-name').value.trim();
+      const submitBtn = document.getElementById('save-profile-btn');
+
+      submitBtn.disabled = true;
+      try {
+        const res = await api.put('/auth/profile', { name: newName });
+        const updated = res.data;
+
+        document.getElementById('profile-name-heading').textContent = updated.name;
+        const currentToken = localStorage.getItem('vt_token');
+        setSession(currentToken, {
+          id: updated.id,
+          name: updated.name,
+          email: updated.email,
+          role: updated.role
+        });
+
+        showToast('Profile updated successfully!', 'success');
+      } catch (err) {
+        showToast(err.message || 'Failed to update profile', 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    document.getElementById('profile-logout-btn').addEventListener('click', () => {
+      logout();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Destination Details - Visakha Tourism</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/index.html" class="brand-logo">
+        <div class="brand-icon">🌊</div>
+        <span>Visakha Tourism</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html" class="nav-link">Home</a></li>
+        <li><a href="/destinations.html" class="nav-link">Destinations</a></li>
+        <li><a href="/itineraries.html" class="nav-link">Travel Plans & Budget</a></li>
+        <li><a href="/index.html#highlights" class="nav-link">Highlights</a></li>
+        <li><a href="/index.html#about" class="nav-link">About Vizag</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Injected dynamically by auth.js -->
+        <a href="/login.html" class="btn btn-sm btn-outline">Log In</a>
+        <a href="/register.html" class="btn btn-sm btn-primary">Sign Up</a>
+      </div>
+
+      <button class="mobile-toggle" aria-label="Toggle navigation">☰</button>
+    </div>
+  </header>
+
+  <main id="details-content">
+    <!-- Detail Hero -->
+    <section class="detail-hero">
+      <img id="detail-hero-img" src="" alt="Destination image" class="detail-hero-img">
+      <div class="detail-hero-overlay">
+        <div class="container detail-header-content">
+          <span id="detail-category-badge" class="section-badge" style="background:var(--primary);color:#fff;margin-bottom:12px;">Category</span>
+          <h1 id="detail-title" class="detail-title">Loading Destination...</h1>
+          <div class="detail-meta-bar">
+            <span id="detail-address">📍 Visakhapatnam, Andhra Pradesh</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Details Body -->
+    <div class="container detail-grid">
+      <!-- Main Content Column -->
+      <div>
+        <!-- Overview Card -->
+        <div class="detail-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2 class="detail-card-title" style="margin-bottom:0; border-bottom:none;">About This Destination</h2>
+            <div style="display:flex; gap:10px;">
+              <button id="share-btn" class="btn btn-sm btn-outline" title="Share this destination">🔗 Share</button>
+              <a id="detail-directions-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" title="Open Google Maps directions">
+                🗺️ Get Directions
+              </a>
+            </div>
+          </div>
+          <p id="detail-description" style="color:var(--text-main); font-size:1.05rem; line-height:1.8; white-space:pre-line;">
+            Loading detailed information...
+          </p>
+        </div>
+
+        <!-- Photo Gallery Card -->
+        <div id="gallery-card" class="detail-card">
+          <h2 class="detail-card-title">Photo Gallery</h2>
+          <div id="detail-gallery-grid" class="gallery-grid">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Things To Do Card -->
+        <div id="things-to-do-card" class="detail-card">
+          <h2 class="detail-card-title">Things to See & Do</h2>
+          <p id="detail-things-to-do" style="color:var(--text-main); font-size:1rem; line-height:1.7; white-space:pre-line;"></p>
+        </div>
+
+        <!-- Travel Tips Card -->
+        <div id="travel-tips-card" class="detail-card">
+          <h2 class="detail-card-title">Visitor Advice & Travel Tips</h2>
+          <p id="detail-travel-tips" style="color:var(--text-main); font-size:1rem; line-height:1.7; white-space:pre-line;"></p>
+        </div>
+
+        <!-- Explore Nearby Attractions Card -->
+        <div class="detail-card">
+          <h2 class="detail-card-title">Explore Nearby Attractions</h2>
+          <p style="color:var(--text-muted); font-size:0.92rem;">
+            Calculated using verified geographic coordinates (Haversine formula). Easily plan your circuit.
+          </p>
+          <div id="nearby-grid" class="nearby-grid">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Column -->
+      <div>
+        <!-- Quick Facts Card -->
+        <div class="detail-card">
+          <h3 class="detail-card-title">Essential Visitor Facts</h3>
+          <ul class="facts-list">
+            <li class="fact-item">
+              <div class="fact-icon">⏰</div>
+              <div>
+                <div class="fact-label">Visiting Hours</div>
+                <div id="fact-hours" class="fact-value">-</div>
+              </div>
+            </li>
+
+            <li class="fact-item">
+              <div class="fact-icon">🎟️</div>
+              <div>
+                <div class="fact-label">Ticket / Entry Fee</div>
+                <div id="fact-price" class="fact-value">-</div>
+              </div>
+            </li>
+
+            <li class="fact-item">
+              <div class="fact-icon">🗓️</div>
+              <div>
+                <div class="fact-label">Best Season to Visit</div>
+                <div id="fact-best-time" class="fact-value">-</div>
+              </div>
+            </li>
+
+            <li class="fact-item">
+              <div class="fact-icon">🌐</div>
+              <div>
+                <div class="fact-label">GPS Coordinates</div>
+                <div id="fact-coords" class="fact-value" style="font-size:0.85rem;">-</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Google Maps Quick Box -->
+        <div class="detail-card" style="text-align:center; background:#f0f9ff; border-color:#bae6fd;">
+          <div style="font-size:2.5rem; margin-bottom:12px;">🧭</div>
+          <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:8px; color:#0369a1;">Navigate with Google Maps</h3>
+          <p style="font-size:0.88rem; color:#0284c7; margin-bottom:18px;">
+            Get step-by-step turn directions, estimated drive times, and transit options directly on your mobile device.
+          </p>
+          <a id="sidebar-directions-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width:100%;">
+            Open Google Maps Directions
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox-modal" class="lightbox-modal">
+    <button id="lightbox-close" class="lightbox-close" aria-label="Close modal">✕</button>
+    <img id="lightbox-img" src="" alt="Enlarged photo" class="lightbox-img">
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <span style="font-size:1.6rem;">🌊</span> Visakha Tourism
+          </div>
+          <p class="footer-desc">
+            Your official digital guide to exploring the City of Destiny.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="/destinations.html">All Destinations</a></li>
+            <li><a href="/destinations.html?category=1">Beaches</a></li>
+            <li><a href="/destinations.html?category=2">Hills & Nature</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Account</h4>
+          <ul class="footer-links">
+            <li><a href="/login.html">User Login</a></li>
+            <li><a href="/register.html">Create Account</a></li>
+            <li><a href="/admin-login.html">Admin Portal</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Contact</h4>
+          <ul class="footer-links">
+            <li><span style="color:#cbd5e1;">📍 Gajuwaka, Visakhapatnam, AP</span></li>
+            <li><span style="color:#cbd5e1;">✉ sivakumarallu4@gmail.com</span></li>
+            <li><span style="color:#cbd5e1;">📞 +91 6281429422</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Visakha Tourism Application. Managed by Siva Kumar Allu, Gajuwaka, Visakhapatnam. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/auth.js"></script>
+  <script type="module" src="/js/destination-details.js"></script>
+  <script>
+    // Sync sidebar directions button with main directions button
+    const observer = new MutationObserver(() => {
+      const mainBtn = document.getElementById('detail-directions-btn');
+      const sideBtn = document.getElementById('sidebar-directions-btn');
+      if (mainBtn && sideBtn && mainBtn.href) {
+        sideBtn.href = mainBtn.href;
+      }
+    });
+    const target = document.getElementById('detail-directions-btn');
+    if (target) observer.observe(target, { attributes: true, attributeFilter: ['href'] });
+  </script>
+</body>
+</html>

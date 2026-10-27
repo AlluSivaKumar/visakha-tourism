@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Itineraries & Budget Planner - Visakha Tourism</title>
+  <meta name="description" content="Curated 2, 3, 4, and 5-day Visakhapatnam itineraries arranged in optimal geographic order with smart budget management and transport advice.">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Itinerary specific styles */
+    .itinerary-tabs-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 36px;
+      justify-content: center;
+    }
+    .itinerary-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+    .itinerary-tab-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .itinerary-tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Budget Calculator Card */
+    .budget-calculator-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 40px;
+    }
+    .calculator-toggle-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .calc-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: #f8fafc;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .calc-btn:hover {
+      background: #e2e8f0;
+    }
+    .calc-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .budget-summary-box {
+      background: linear-gradient(135deg, #f0f9ff, #f0fdfa);
+      border: 2px solid #bae6fd;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .budget-total-val {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #0369a1;
+      line-height: 1.1;
+    }
+
+    .cost-breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .cost-item {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .cost-item-header {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cost-item-val {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .cost-item-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Day Plan Card */
+    .day-plan-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+    .day-plan-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .day-badge {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 8px 18px;
+      border-radius: var(--radius-md);
+      white-space: nowrap;
+    }
+    .day-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .day-zone {
+      font-size: 0.9rem;
+      color: #0284c7;
+      font-weight: 600;
+    }
+    .day-route-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Stops List */
+    .stops-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .stop-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px;
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius-sm);
+    }
+    .stop-number {
+      width: 32px;
+      height: 32px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.92rem;
+      flex-shrink: 0;
+    }
+    .stop-body {
+      flex: 1;
+    }
+    .stop-top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .stop-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .stop-name:hover {
+      color: var(--primary);
+    }
+    .stop-time {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0369a1;
+      background: #e0f2fe;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+    }
+    .stop-highlight {
+      font-size: 0.92rem;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .stop-geo-note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      background: #ffffff;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    /* Day Transit Card */
+    .day-transit-card {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      margin-bottom: 16px;
+    }
+    .day-food-box {
+      background: #fefce8;
+      border: 1px solid #fef08a;
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      color: #854d0e;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/index.html" class="brand-logo">
+        <div class="brand-icon">🌊</div>
+        <span>Visakha Tourism</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html" class="nav-link">Home</a></li>
+        <li><a href="/destinations.html" class="nav-link">Destinations</a></li>
+        <li><a href="/itineraries.html" class="nav-link active">Travel Plans</a></li>
+        <li><a href="/index.html#highlights" class="nav-link">Highlights</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Injected by auth.js -->
+        <a href="/login.html" class="btn btn-sm btn-outline">Log In</a>
+        <a href="/register.html" class="btn btn-sm btn-primary">Sign Up</a>
+      </div>
+
+      <button class="mobile-toggle" aria-label="Toggle navigation">☰</button>
+    </div>
+  </header>
+
+  <!-- Page Banner -->
+  <section style="background: linear-gradient(135deg, #0c4a6e, #0f172a); color: #ffffff; padding: 48px 0 36px;">
+    <div class="container">
+      <div style="max-width: 800px;">
+        <span class="section-badge" style="background: rgba(255,255,255,0.18); color: #ffffff; margin-bottom: 12px;">Smart Tour Planning</span>
+        <h1 style="font-size: 2.6rem; font-weight: 800; margin-bottom: 10px;">Curated Travel Plans & Budget Calculator</h1>
+        <p style="color: #cbd5e1; font-size: 1.05rem; line-height: 1.6;">
+          Expertly sequenced in <strong>strict geographical order</strong> so you never waste hours zigzagging across the city. Includes interactive budget estimates and transit advice for 2, 3, 4, and 5-day trips.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Planner Section -->
+  <main class="container" style="padding-top: 40px; padding-bottom: 80px;">
+
+    <!-- Plan Selector Tabs -->
+    <div id="itinerary-tabs" class="itinerary-tabs-nav">
+      <!-- Injected by itineraries.js -->
+    </div>
+
+    <!-- Active Plan Overview Header -->
+    <div class="data-card" style="padding: 28px 32px; margin-bottom: 32px; border-left: 6px solid var(--primary);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+        <div style="flex:1; min-width:280px;">
+          <h2 id="plan-title" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Loading Plan...</h2>
+          <p id="plan-tagline" style="font-size: 1.05rem; color: #0284c7; font-weight: 600; margin-bottom: 12px;"></p>
+          <p id="plan-overview" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px;"></p>
+          <div style="font-size: 0.88rem; color: var(--text-main);">
+            🎯 <strong>Best Suited For:</strong> <span id="plan-audience" style="color: var(--text-muted);"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Budget Calculator Section -->
+    <div class="budget-calculator-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-main); display:flex; align-items:center; gap:8px;">
+          <span>💰</span> Interactive Budget Estimator
+        </h3>
+        <span style="font-size:0.85rem; color:var(--text-muted);">Includes stay, transit, food & tickets</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <!-- Travel Tier Selector -->
+        <div>
+          <label style="display:block; font-size:0.88rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">
+            1. Select Travel Comfort Tier:
+          </label>
+          <div class="calculator-toggle-group">
+            <button class="calc-btn tier-toggle-btn" data-tier="budget">🎒 Budget / Backpacker</button>
+            <button class="calc-btn tier-toggle-btn active" data-tier="mid">🚗 Mid-Range (Popular)</button>
+            <button class="calc-btn tier-toggle-btn" data-tier="luxury">✨ Luxury / Resort</button>
+          </div>
+        </div>
+
+        <!-- Group Size Selector -->
+        <div>
+          <label style="display:block; font-size:0.88rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">
+            2. Select Group Size:
+          </label>
+          <div class="calculator-toggle-group">
+            <button class="calc-btn group-size-btn" data-size="1">Solo (1 Person)</button>
+            <button class="calc-btn group-size-btn active" data-size="2">Couple (2 Persons)</button>
+            <button class="calc-btn group-size-btn" data-size="4">Family (4 Persons)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Budget Summary Display -->
+      <div class="budget-summary-box">
+        <div>
+          <div style="font-size:0.88rem; font-weight:700; color:#0369a1; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">
+            Estimated Total Tour Expense
+          </div>
+          <div id="budget-total-cost" class="budget-total-val">₹13,000</div>
+          <div id="budget-per-person" style="font-size:0.88rem; color:#0284c7; font-weight:600;"></div>
+        </div>
+        <div style="text-align:right;">
+          <a href="#day-plans-timeline" class="btn btn-primary btn-sm">Explore Day Schedule ↓</a>
+        </div>
+      </div>
+
+      <!-- Itemized Cost Breakdown Cards -->
+      <div class="cost-breakdown-grid">
+        <div class="cost-item">
+          <div class="cost-item-header"><span>🏨</span> Stay & Hotels</div>
+          <div id="cost-stay" class="cost-item-val">₹0</div>
+          <div id="desc-stay" class="cost-item-desc">-</div>
+        </div>
+
+        <div class="cost-item">
+          <div class="cost-item-header"><span>🚗</span> Transport & Fuel</div>
+          <div id="cost-transport" class="cost-item-val">₹0</div>
+          <div id="desc-transport" class="cost-item-desc">-</div>
+        </div>
+
+        <div class="cost-item">
+          <div class="cost-item-header"><span>🍽️</span> Food & Meals</div>
+          <div id="cost-food" class="cost-item-val">₹0</div>
+          <div class="cost-item-desc">Seafood, Andhra thali, street snacks & Araku coffee</div>
+        </div>
+
+        <div class="cost-item">
+          <div class="cost-item-header"><span>🎟️</span> Tickets & Fees</div>
+          <div id="cost-activities" class="cost-item-val">₹0</div>
+          <div class="cost-item-desc">Submarine museum, aircraft, ropeway & caves entry</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Geographic Route Strategy Card -->
+    <div style="background:#f8fafc; border:1px dashed #0284c7; border-radius:var(--radius-lg); padding:24px 28px; margin-bottom:36px; display:flex; align-items:flex-start; gap:16px;">
+      <div style="font-size:2rem;">🧭</div>
+      <div>
+        <h4 style="font-size:1.1rem; font-weight:800; color:var(--text-main); margin-bottom:6px;">
+          Why This Geographic Sequencing?
+        </h4>
+        <p style="font-size:0.92rem; color:var(--text-muted); line-height:1.6; margin-bottom:12px;">
+          All itineraries are engineered along linear natural corridors (South Beach Road $\rightarrow$ Kailasagiri $\rightarrow$ Bheemili Marine Highway $\rightarrow$ Ananthagiri Ghats). By avoiding zigzagging across urban traffic, you save <strong>3 to 4 hours of travel time per day</strong>.
+        </p>
+        <div style="font-size:0.88rem; font-weight:600; color:#0284c7;">
+          Primary Transit Recommendation: <span id="primary-transport-recommendation" style="color:var(--text-main); font-weight:700;"></span>
+        </div>
+        <ul id="transit-tips-container" style="list-style:none; padding:0; margin-top:8px; font-size:0.85rem; color:var(--text-muted);">
+          <!-- Populated by itineraries.js -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- Day-by-Day Detailed Schedule -->
+    <div id="day-plans-timeline">
+      <!-- Populated by itineraries.js -->
+    </div>
+
+    <!-- Customized Guidance Card -->
+    <div style="text-align:center; padding:48px 24px; background:#ffffff; border:1px solid var(--border-color); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); margin-top:40px;">
+      <h3 style="font-size:1.5rem; font-weight:800; color:var(--text-main); margin-bottom:8px;">Need Personalized Trip Assistance?</h3>
+      <p style="color:var(--text-muted); font-size:0.95rem; max-width:580px; margin:0 auto 20px;">
+        Have special travel requirements, corporate bookings, or school groups? Contact our tourism administration in Gajuwaka, Visakhapatnam.
+      </p>
+      <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap; font-size:0.95rem; font-weight:600; margin-bottom:20px;">
+        <span style="color:var(--text-main);">📞 +91 6281429422</span>
+        <span style="color:var(--text-main);">✉ sivakumarallu4@gmail.com</span>
+        <span style="color:var(--text-main);">📍 Gajuwaka, Visakhapatnam</span>
+      </div>
+      <a href="/destinations.html" class="btn btn-primary">Browse All 55+ Destinations →</a>
+    </div>
+
+  </main>
+
+  <!-- Footer with Updated Admin Contact Information -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <span style="font-size:1.6rem;">🌊</span> Visakha Tourism
+          </div>
+          <p class="footer-desc">
+            Your comprehensive digital guide to exploring Visakhapatnam, Araku Valley, and Eastern Ghats.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Travel Plans</h4>
+          <ul class="footer-links">
+            <li><a href="/itineraries.html?days=2">2 Days Weekend Tour</a></li>
+            <li><a href="/itineraries.html?days=3">3 Days Classic Vizag</a></li>
+            <li><a href="/itineraries.html?days=4">4 Days Coast & Araku</a></li>
+            <li><a href="/itineraries.html?days=5">5 Days Grand Tour</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Explore</h4>
+          <ul class="footer-links">
+            <li><a href="/destinations.html">All 55+ Destinations</a></li>
+            <li><a href="/destinations.html?category=1">Beaches</a></li>
+            <li><a href="/destinations.html?category=2">Hills & Nature</a></li>
+            <li><a href="/admin-login.html">Admin Portal</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Contact & Help</h4>
+          <ul class="footer-links">
+            <li><span style="color:#cbd5e1;">📍 Gajuwaka, Visakhapatnam, AP</span></li>
+            <li><span style="color:#cbd5e1;">✉ sivakumarallu4@gmail.com</span></li>
+            <li><span style="color:#cbd5e1;">📞 +91 6281429422</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Visakha Tourism Application. Managed by Siva Kumar Allu, Gajuwaka, Visakhapatnam.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/auth.js"></script>
+  <script type="module" src="/js/itineraries.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Visakha Tourism</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="brand-icon" style="width:34px; height:34px; font-size:1rem;">🌊</div>
+        <div class="admin-sidebar-logo">Visakha Admin</div>
+        <span class="admin-sidebar-badge">Portal</span>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="/admin-dashboard.html" class="admin-nav-item active">
+          <span>📊</span> Overview
+        </a>
+        <a href="/admin-destinations.html" class="admin-nav-item">
+          <span>🗺️</span> Destinations
+        </a>
+        <a href="/admin-destination-form.html" class="admin-nav-item">
+          <span>➕</span> Add Destination
+        </a>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <a href="/index.html" target="_blank" class="admin-nav-item" style="color:#38bdf8;">
+          <span>🌐</span> View Public Site ↗
+        </a>
+        <button id="admin-logout-btn" class="admin-nav-item" style="background:transparent; border:none; cursor:pointer; color:#f87171; text-align:left; width:100%;">
+          <span>🚪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Admin Main -->
+    <main class="admin-main">
+      <!-- Topbar -->
+      <header class="admin-topbar">
+        <div class="admin-breadcrumb">Tourism Platform Overview</div>
+        <div class="admin-user-pill">
+          <div class="admin-avatar">A</div>
+          <span id="admin-user-name" style="font-weight:700; font-size:0.92rem;">Administrator</span>
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <div class="admin-content">
+        <!-- Stats Grid (Real metrics from MySQL) -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-blue">📍</div>
+            <div class="stat-info">
+              <span id="stat-total-dest" class="stat-value">...</span>
+              <span class="stat-label">Total Destinations</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-green">✓</div>
+            <div class="stat-info">
+              <span id="stat-published-dest" class="stat-value">...</span>
+              <span class="stat-label">Published & Live</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-amber">👁️</div>
+            <div class="stat-info">
+              <span id="stat-unpublished-dest" class="stat-value">...</span>
+              <span class="stat-label">Hidden / Draft</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-purple">🖼️</div>
+            <div class="stat-info">
+              <span id="stat-total-photos" class="stat-value">...</span>
+              <span class="stat-label">Total Gallery Photos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Grid for Category Breakdown and Quick Actions -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 32px;">
+          <!-- Category Breakdown Card -->
+          <div class="data-card">
+            <div class="data-card-header">
+              <h3 class="data-card-title">Destinations by Category</h3>
+            </div>
+            <div id="category-distribution-container" class="category-bars">
+              <!-- Injected by admin.js -->
+              <div class="text-center" style="padding:20px;"><span class="spinner spinner-primary"></span></div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & System Info Card -->
+          <div class="data-card" style="padding: 24px;">
+            <h3 class="data-card-title" style="margin-bottom: 16px;">Quick Management Actions</h3>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <a href="/admin-destination-form.html" class="btn btn-primary" style="justify-content:flex-start;">
+                <span>➕</span> Add New Tourism Destination
+              </a>
+              <a href="/admin-destinations.html" class="btn btn-outline" style="justify-content:flex-start;">
+                <span>📋</span> View & Filter Destination Catalog
+              </a>
+              <a href="/destinations.html" target="_blank" class="btn btn-outline" style="justify-content:flex-start;">
+                <span>🌐</span> Open Public Website
+              </a>
+            </div>
+
+            <div style="margin-top:24px; padding:16px; background:#f8fafc; border-radius:var(--radius-md); border:1px solid var(--border-color); font-size:0.85rem; color:var(--text-muted); line-height:1.6;">
+              <strong style="color:var(--text-main);">Database Status:</strong> Connected to MySQL 8.0<br>
+              <strong style="color:var(--text-main);">Backend:</strong> Spring Boot 3.3.4 (Java 21 LTS)<br>
+              <strong style="color:var(--text-main);">Migrations:</strong> Flyway V1 & V2 Applied
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Destinations Table -->
+        <div class="data-card">
+          <div class="data-card-header">
+            <h3 class="data-card-title">Recently Added or Updated Places</h3>
+            <a href="/admin-destinations.html" class="btn btn-sm btn-outline">View All Destinations →</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">Thumbnail</th>
+                  <th>Destination Name</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th style="width: 100px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recent-destinations-tbody">
+                <!-- Injected by admin.js -->
+                <tr><td colspan="5" style="text-align:center; padding:30px;"><span class="spinner spinner-primary"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/js/admin.js"></script>
+</body>
+</html>

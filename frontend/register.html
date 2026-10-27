@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - Visakha Tourism</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="/index.html" class="brand-logo">
+        <div class="brand-icon">🌊</div>
+        <span>Visakha Tourism</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/index.html" class="nav-link">Home</a></li>
+        <li><a href="/destinations.html" class="nav-link">Destinations</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="/login.html" class="btn btn-sm btn-outline">Log In</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Register Main -->
+  <main class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="auth-badge">Join Us</span>
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">Verify your email with a secure OTP to start exploring Vizag</p>
+      </div>
+
+      <div id="register-alert" style="display:none; padding:12px 16px; border-radius:var(--radius-md); font-size:0.88rem; margin-bottom:20px;"></div>
+
+      <form id="register-form">
+        <div class="form-group">
+          <label for="reg-name" class="form-label">Full Name</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="e.g. Sravani Rao" required minlength="2">
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email" class="form-label">Email Address</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="name@example.com" required autocomplete="email">
+          <div class="form-hint">A 6-digit OTP verification code will be sent to this email.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password" class="form-label">Password</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
+        </div>
+
+        <div class="form-group">
+          <label for="reg-confirm-password" class="form-label">Confirm Password</label>
+          <input type="password" id="reg-confirm-password" class="form-input" placeholder="Confirm your password" required minlength="6" autocomplete="new-password">
+        </div>
+
+        <button type="submit" id="reg-submit-btn" class="btn btn-primary" style="width:100%; margin-top:12px; padding:12px;">
+          Send Verification OTP
+        </button>
+      </form>
+
+      <div style="text-align:center; margin-top:24px; font-size:0.9rem; color:var(--text-muted);">
+        Already have an account? <a href="/login.html" style="font-weight:700;">Sign In</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { api, showToast } from '/js/api.js';
+
+    const form = document.getElementById('register-form');
+    const alertBox = document.getElementById('register-alert');
+    const submitBtn = document.getElementById('reg-submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+      if (password !== confirmPassword) {
+        alertBox.style.display = 'block';
+        alertBox.style.background = '#fee2e2';
+        alertBox.style.color = '#b91c1c';
+        alertBox.style.border = '1px solid #f87171';
+        alertBox.textContent = 'Passwords do not match. Please verify both fields.';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Generating verification code...';
+
+      try {
+        await api.post('/auth/register', {
+          name,
+          email,
+          password,
+          confirmPassword
+        });
+
+        // Store email in session for verify page
+        sessionStorage.setItem('pending_verification_email', email);
+        showToast('Verification OTP sent! Check your inbox.', 'success');
+
+        setTimeout(() => {
+          window.location.href = '/verify-otp.html';
+        }, 800);
+
+      } catch (err) {
+        console.error('Registration error:', err);
+        alertBox.style.display = 'block';
+        alertBox.style.background = '#fee2e2';
+        alertBox.style.color = '#b91c1c';
+        alertBox.style.border = '1px solid #f87171';
+        alertBox.textContent = err.message || 'Registration failed. Please try again.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Verification OTP';
+      }
+    });
+  </script>
+</body>
+</html>
