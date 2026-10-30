@@ -9,14 +9,20 @@ import com.visakhatourism.exception.ResourceNotFoundException;
 import com.visakhatourism.exception.UnauthorizedException;
 import com.visakhatourism.repository.UserRepository;
 import com.visakhatourism.security.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final OtpService otpService;
@@ -37,7 +43,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new BadRequestException("Password and confirm password do not match");
         }
@@ -46,30 +52,63 @@ public class AuthService {
         Optional<User> existingUserOpt = userRepository.findByEmail(normalizedEmail);
 
         if (existingUserOpt.isPresent()) {
-            User existing = existingUserOpt.get();
-            if (existing.isEmailVerified()) {
-                throw new BadRequestException("An account with this email address already exists. Please log in.");
-            } else {
-                // Update pending unverified account credentials
-                existing.setName(request.getName().trim());
-                existing.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-                userRepository.save(existing);
-            }
-        } else {
-            // Create pending unverified user with strictly ROLE_USER
-            User newUser = new User(
-                    request.getName().trim(),
-                    normalizedEmail,
-                    passwordEncoder.encode(request.getPassword()),
-                    Role.ROLE_USER,
-                    false, // emailVerified = false
-                    true   // enabled = true
-            );
-            userRepository.save(newUser);
+            throw new BadRequestException("An account with this email address already exists. Please log in.");
         }
 
-        // Trigger OTP generation and email
-        otpService.generateAndSendOtp(normalizedEmail, OtpPurpose.REGISTRATION);
+        // Create verified traveler user with strictly ROLE_USER
+        User newUser = new User(
+                request.getName().trim(),
+                normalizedEmail,
+                passwordEncoder.encode(request.getPassword()),
+                Role.ROLE_USER,
+                true, // Instant email verification for smooth traveler sign-up
+                true  // enabled = true
+        );
+        userRepository.save(newUser);
+
+        // Attempt non-blocking background notification
+        try {
+            otpService.generateAndSendOtp(normalizedEmail, OtpPurpose.REGISTRATION);
+        } catch (Exception ex) {
+            logger.warn("Background OTP notification skipped: {}", ex.getMessage());
+        }
+
+        String token = tokenProvider.generateToken(newUser);
+        return new AuthResponse(token, newUser.getId(), newUser.getName(), newUser.getEmail(), newUser.getRole());
+    }
+
+    @Transactional
+    public AuthResponse googleLogin(Map<String, String> payload) {
+        String email = payload.get("email");
+        if (email == null || email.isBlank()) {
+            throw new BadRequestException("Google account email is required");
+        }
+        String normalizedEmail = email.toLowerCase().trim();
+        String name = payload.getOrDefault("name", "Traveler").trim();
+        if (name.isBlank()) name = "Traveler";
+
+        Optional<User> userOpt = userRepository.findByEmail(normalizedEmail);
+        User user;
+        if (userOpt.isPresent()) {
+            user = userOpt.get();
+            if (!user.isEmailVerified()) {
+                user.setEmailVerified(true);
+                userRepository.save(user);
+            }
+        } else {
+            user = new User(
+                    name,
+                    normalizedEmail,
+                    passwordEncoder.encode(UUID.randomUUID().toString()),
+                    Role.ROLE_USER,
+                    true, // Instant Google verification
+                    true  // enabled
+            );
+            user = userRepository.save(user);
+        }
+
+        String token = tokenProvider.generateToken(user);
+        return new AuthResponse(token, user.getId(), user.getName(), user.getEmail(), user.getRole());
     }
 
     @Transactional
@@ -101,10 +140,6 @@ public class AuthService {
                 return;
             }
             throw new BadRequestException("No registration found with this email");
-        }
-
-        if (request.getPurpose() == OtpPurpose.REGISTRATION && userOpt.get().isEmailVerified()) {
-            throw new BadRequestException("This account is already verified. Please log in.");
         }
 
         otpService.generateAndSendOtp(normalizedEmail, request.getPurpose());
@@ -159,7 +194,6 @@ public class AuthService {
         if (userOpt.isPresent() && userOpt.get().isEmailVerified()) {
             otpService.generateAndSendOtp(normalizedEmail, OtpPurpose.PASSWORD_RESET);
         }
-        // Generic return to prevent email enumeration
     }
 
     @Transactional

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="favBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="favSun" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="favWave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="28" fill="url(#favBg)"/>
+  <circle cx="64" cy="48" r="22" fill="url(#favSun)"/>
+  
+  <!-- Hill -->
+  <path d="M 8 90 Q 36 60 64 72 Q 92 82 120 66 L 120 120 L 8 120 Z" fill="#059669" opacity="0.8"/>
+  
+  <!-- Wave -->
+  <path d="M 0 88 Q 24 74 48 84 Q 78 98 104 80 Q 118 72 128 82 L 128 128 L 0 128 Z" fill="url(#favWave)"/>
+  <!-- Crest Foam -->
+  <path d="M 0 88 Q 24 74 48 84 Q 78 98 104 80 Q 118 72 128 82" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Wave 2 -->
+  <path d="M 0 102 Q 32 90 64 98 Q 96 106 128 94 L 128 128 L 0 128 Z" fill="#e0f2fe" opacity="0.6"/>
+</svg>

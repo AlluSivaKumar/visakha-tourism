@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#0369a1"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="waveGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#7dd3fc"/>
+    </linearGradient>
+    <linearGradient id="hillGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Circular Base Badge -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#38bdf8" stroke-width="4" stroke-opacity="0.4"/>
+
+  <!-- Golden Rising Sun -->
+  <circle cx="256" cy="190" r="70" fill="url(#sunGrad)"/>
+  <!-- Sun Rays -->
+  <g stroke="#fde68a" stroke-width="3" stroke-linecap="round" opacity="0.6">
+    <line x1="256" y1="95" x2="256" y2="75"/>
+    <line x1="189" y1="123" x2="175" y2="109"/>
+    <line x1="323" y1="123" x2="337" y2="109"/>
+    <line x1="161" y1="190" x2="141" y2="190"/>
+    <line x1="351" y1="190" x2="371" y2="190"/>
+  </g>
+
+  <!-- Eastern Ghats Hill Silhouette (Left & Center) -->
+  <path d="M 40 340 Q 140 220 230 260 Q 300 290 380 230 Q 430 270 472 340 Z" fill="url(#hillGrad)" opacity="0.85"/>
+
+  <!-- Dolphin's Nose Cliff (Left promontory) -->
+  <path d="M 60 350 Q 120 230 180 250 L 190 350 Z" fill="#065f46" opacity="0.9"/>
+  <!-- Lighthouse on Hill -->
+  <rect x="150" y="210" width="12" height="35" fill="#ffffff" rx="2"/>
+  <polygon points="146,210 166,210 156,198" fill="#ef4444"/>
+  <circle cx="156" cy="216" r="3" fill="#fef08a"/>
+  <!-- Lighthouse Light Beam -->
+  <polygon points="159,216 340,160 350,195" fill="#fef08a" opacity="0.25"/>
+
+  <!-- Dynamic Bay of Bengal Coastal Waves -->
+  <path d="M 30 350 Q 90 310 160 340 Q 240 370 320 320 Q 390 280 482 340 L 482 460 Q 380 496 256 496 Q 132 496 30 460 Z" fill="url(#waveGrad1)"/>
+  
+  <path d="M 20 390 Q 100 340 180 370 Q 270 400 360 350 Q 430 310 492 375 L 492 460 Q 380 496 256 496 Q 132 496 20 460 Z" fill="url(#waveGrad2)" opacity="0.5"/>
+
+  <!-- White Wave Crest Foams -->
+  <path d="M 30 350 Q 90 310 160 340 Q 240 370 320 320 Q 390 280 482 340" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  <path d="M 80 380 Q 150 340 230 370 Q 310 400 400 350" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.75"/>
+
+  <!-- Brand Typography -->
+  <text x="256" y="445" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3">VISAKHA</text>
+  <text x="256" y="475" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="4">TOURISM</text>
+</svg>

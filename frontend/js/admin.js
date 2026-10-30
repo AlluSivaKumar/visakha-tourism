@@ -2,6 +2,7 @@
 
 import { api, showToast } from './api.js';
 import { requireAdmin, getUser, logout } from './auth.js';
+import { FALLBACK_CATEGORIES } from './categories-data.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Enforce admin privileges
@@ -10,14 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAdminUserPill();
   setupAdminLogout();
 
-  // Route page-specific initialization
-  const path = window.location.pathname;
-  if (path.includes('admin-dashboard.html')) {
-    initDashboard();
-  } else if (path.includes('admin-destinations.html')) {
-    initDestinationsTable();
-  } else if (path.includes('admin-destination-form.html')) {
+  // Route page-specific initialization by DOM element and pathname
+  if (document.getElementById('destination-form') || window.location.pathname.includes('admin-destination-form')) {
     initDestinationForm();
+  } else if (document.getElementById('destinations-table-body') || window.location.pathname.includes('admin-destinations')) {
+    initDestinationsTable();
+  } else if (document.getElementById('stat-total-dest') || window.location.pathname.includes('admin-dashboard')) {
+    initDashboard();
   }
 });
 
@@ -304,10 +304,8 @@ async function loadCategoriesIntoDropdown(selectId, includeAllOption) {
   const select = document.getElementById(selectId);
   if (!select) return;
 
-  try {
-    const res = await api.get('/categories');
-    const categories = res.data || [];
-
+  function populate(categories) {
+    const currentVal = select.value;
     select.innerHTML = includeAllOption ? '<option value="">All Categories</option>' : '<option value="">Select Category</option>';
     categories.forEach(cat => {
       const opt = document.createElement('option');
@@ -315,8 +313,20 @@ async function loadCategoriesIntoDropdown(selectId, includeAllOption) {
       opt.textContent = cat.name;
       select.appendChild(opt);
     });
+    if (currentVal) select.value = currentVal;
+  }
+
+  // Pre-populate with verified fallback categories immediately
+  populate(FALLBACK_CATEGORIES);
+
+  try {
+    const res = await api.get('/categories');
+    const categories = res.data || [];
+    if (categories && categories.length > 0) {
+      populate(categories);
+    }
   } catch (err) {
-    console.error('Failed to load categories dropdown:', err);
+    console.warn('Backend categories endpoint warming up, dropdown fallback active:', err);
   }
 }
 
@@ -324,14 +334,21 @@ async function loadDestinationIntoForm(id) {
   try {
     const res = await api.get(`/admin/destinations/${id}`);
     const dest = res.data;
+    if (!dest) return;
 
     document.getElementById('dest-name').value = dest.name || '';
     document.getElementById('dest-short-desc').value = dest.shortDescription || '';
     document.getElementById('dest-full-desc').value = dest.fullDescription || '';
-    document.getElementById('dest-category').value = dest.category?.id || '';
+
+    const catId = dest.category?.id || dest.categoryId || '';
+    const catSelect = document.getElementById('dest-category');
+    if (catSelect && catId) {
+      catSelect.value = catId;
+    }
+
     document.getElementById('dest-address').value = dest.address || '';
-    document.getElementById('dest-lat').value = dest.latitude || '';
-    document.getElementById('dest-lng').value = dest.longitude || '';
+    document.getElementById('dest-lat').value = (dest.latitude !== null && dest.latitude !== undefined) ? dest.latitude : '';
+    document.getElementById('dest-lng').value = (dest.longitude !== null && dest.longitude !== undefined) ? dest.longitude : '';
     document.getElementById('dest-hours').value = dest.openingHours || '';
     document.getElementById('dest-price').value = dest.ticketPrice || '';
     document.getElementById('dest-best-time').value = dest.bestTimeToVisit || '';
@@ -356,11 +373,21 @@ async function saveDestination(editId) {
     submitBtn.textContent = 'Saving Destination...';
   }
 
+  const categoryIdVal = document.getElementById('dest-category').value;
+  if (!categoryIdVal) {
+    showToast('Please select a category for this destination', 'warning');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = editId ? 'Save Destination' : 'Create Destination';
+    }
+    return;
+  }
+
   const payload = {
     name: document.getElementById('dest-name').value.trim(),
     shortDescription: document.getElementById('dest-short-desc').value.trim(),
     fullDescription: document.getElementById('dest-full-desc').value.trim(),
-    categoryId: parseInt(document.getElementById('dest-category').value, 10),
+    categoryId: parseInt(categoryIdVal, 10),
     address: document.getElementById('dest-address').value.trim(),
     latitude: document.getElementById('dest-lat').value ? parseFloat(document.getElementById('dest-lat').value) : null,
     longitude: document.getElementById('dest-lng').value ? parseFloat(document.getElementById('dest-lng').value) : null,
@@ -392,7 +419,7 @@ async function saveDestination(editId) {
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.textContent = editId ? 'Update Destination' : 'Create Destination';
+      submitBtn.textContent = editId ? 'Save Destination' : 'Create Destination';
     }
   }
 }

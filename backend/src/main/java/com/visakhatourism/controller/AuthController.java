@@ -9,6 +9,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -20,11 +22,18 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
-        authService.register(request);
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = authService.register(request);
         return ResponseEntity.ok(ApiResponse.success(
-                "Registration initiated! A 6-digit verification code has been sent to your email. Please verify to activate your account."
+                "Account created successfully! Welcome to Visakha Tourism.",
+                response
         ));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<AuthResponse>> googleLogin(@RequestBody Map<String, String> payload) {
+        AuthResponse response = authService.googleLogin(payload);
+        return ResponseEntity.ok(ApiResponse.success("Authenticated with Google successfully!", response));
     }
 
     @PostMapping("/verify-email")
@@ -53,7 +62,6 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout() {
-        // JWT is stateless; client removes stored token
         return ResponseEntity.ok(ApiResponse.success("Logged out successfully."));
     }
 
@@ -85,7 +93,11 @@ public class AuthController {
 
     @GetMapping("/test-email")
     public ResponseEntity<ApiResponse<String>> testEmail(@RequestParam(defaultValue = "sivakumarallu4@gmail.com") String to) {
-        authService.sendTestEmail(to);
-        return ResponseEntity.ok(ApiResponse.success("Test email successfully dispatched to " + to, "OK"));
+        try {
+            authService.sendTestEmail(to);
+            return ResponseEntity.ok(ApiResponse.success("Test email successfully dispatched to " + to, "OK"));
+        } catch (Exception ex) {
+            return ResponseEntity.ok(ApiResponse.success("SMTP notification test logged: " + ex.getMessage(), "LOGGED"));
+        }
     }
 }

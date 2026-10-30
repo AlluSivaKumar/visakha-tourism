@@ -84,7 +84,7 @@ public class SecurityConfig {
 
                         // Public Auth endpoints
                         .requestMatchers("/api/auth/register", "/api/auth/verify-email", "/api/auth/resend-otp",
-                                "/api/auth/login", "/api/auth/admin-login", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/test-email").permitAll()
+                                "/api/auth/login", "/api/auth/admin-login", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/test-email", "/api/auth/google").permitAll()
 
                         // Public Destination, Category & Itinerary APIs
                         .requestMatchers(HttpMethod.GET, "/api/destinations/**", "/api/categories/**", "/api/itineraries/**").permitAll()

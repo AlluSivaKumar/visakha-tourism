@@ -1,6 +1,7 @@
 // Visakha Tourism Destination Catalog Controller (Server-side Pagination & Load More)
 
 import { api, showToast } from './api.js';
+import { FALLBACK_CATEGORIES } from './categories-data.js';
 
 // State management
 let currentPage = 0;
@@ -36,31 +37,42 @@ function readUrlParams() {
   }
 }
 
+function renderCategoryPills(categories, container) {
+  if (!container || !categories) return;
+  container.innerHTML = '';
+
+  const allPill = document.createElement('button');
+  allPill.className = `filter-pill ${!currentCategory ? 'active' : ''}`;
+  allPill.textContent = 'All Destinations';
+  allPill.dataset.catId = '';
+  allPill.addEventListener('click', () => selectCategory(null));
+  container.appendChild(allPill);
+
+  categories.forEach(cat => {
+    const pill = document.createElement('button');
+    pill.className = `filter-pill ${currentCategory == cat.id ? 'active' : ''}`;
+    pill.textContent = cat.name;
+    pill.dataset.catId = cat.id;
+    pill.addEventListener('click', () => selectCategory(cat.id));
+    container.appendChild(pill);
+  });
+}
+
 async function loadCategoriesFilter() {
   const container = document.getElementById('category-filter-pills');
   if (!container) return;
 
+  // Immediately populate with fallback categories
+  renderCategoryPills(FALLBACK_CATEGORIES, container);
+
   try {
     const res = await api.get('/categories');
     const categories = res.data || [];
-
-    const allPill = document.createElement('button');
-    allPill.className = `filter-pill ${!currentCategory ? 'active' : ''}`;
-    allPill.textContent = 'All Destinations';
-    allPill.dataset.catId = '';
-    allPill.addEventListener('click', () => selectCategory(null));
-    container.appendChild(allPill);
-
-    categories.forEach(cat => {
-      const pill = document.createElement('button');
-      pill.className = `filter-pill ${currentCategory == cat.id ? 'active' : ''}`;
-      pill.textContent = cat.name;
-      pill.dataset.catId = cat.id;
-      pill.addEventListener('click', () => selectCategory(cat.id));
-      container.appendChild(pill);
-    });
+    if (categories && categories.length > 0) {
+      renderCategoryPills(categories, container);
+    }
   } catch (err) {
-    console.error('Failed to load categories filter:', err);
+    console.warn('Backend categories endpoint warming up, fallback active:', err);
   }
 }
 

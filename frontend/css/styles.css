@@ -1088,3 +1088,110 @@ img {
   .destinations-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; }
 }
+
+
+/* Login Gate & Curated Tour Packages */
+.login-gate-blur {
+  position: relative;
+  max-height: 110px;
+  overflow: hidden;
+  user-select: none;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+}
+
+.package-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.package-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.package-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+.package-badge-popular { background: #e0f2fe; color: #0284c7; }
+.package-badge-adventure { background: #fef3c7; color: #b45309; }
+.package-badge-special { background: #dcfce7; color: #15803d; }
+
+.package-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.package-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.package-duration {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.package-price {
+  text-align: right;
+}
+
+.package-price-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.package-price-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.package-highlights {
+  list-style: none;
+  margin: 14px 0 18px;
+  padding: 0;
+}
+
+.package-highlights li {
+  font-size: 0.88rem;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.package-highlights li::before {
+  content: "✓";
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.package-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}

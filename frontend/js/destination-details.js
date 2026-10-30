@@ -1,6 +1,10 @@
-// Visakha Tourism Destination Details Page Controller
+// Visakha Tourism Destination Details Page Controller with Login-Gating & Packages
 
 import { api, showToast } from './api.js';
+import { isAuthenticated, updateNavAuth } from './auth.js';
+import { setupGoogleSignInButton } from './google-auth.js';
+
+let currentDestination = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
@@ -17,8 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadDestinationDetails(slug) {
-  const container = document.getElementById('details-content');
-
   try {
     const res = await api.get(`/destinations/${slug}`);
     const dest = res.data;
@@ -27,6 +29,8 @@ async function loadDestinationDetails(slug) {
       showErrorState('Destination Not Found', 'The requested travel destination could not be found.');
       return;
     }
+
+    currentDestination = dest;
 
     // Set page title
     document.title = `${dest.name} - Visakha Tourism`;
@@ -44,50 +48,232 @@ async function loadDestinationDetails(slug) {
       directionsBtn.title = `Get directions to ${dest.name} on Google Maps`;
     }
 
-    // Full Description
-    document.getElementById('detail-description').textContent = dest.fullDescription;
-
-    // Key facts
-    document.getElementById('fact-hours').textContent = dest.openingHours || 'Information not specified';
-    document.getElementById('fact-price').textContent = dest.ticketPrice || 'Free / Not applicable';
+    // Key facts (Publicly visible)
+    document.getElementById('fact-hours').textContent = dest.openingHours || 'Open daily';
+    document.getElementById('fact-price').textContent = dest.ticketPrice || 'Free entry / Nominal';
     document.getElementById('fact-best-time').textContent = dest.bestTimeToVisit || 'October to March';
-    
-    // Coordinates
+
+    // GPS Coordinates
     const coordsEl = document.getElementById('fact-coords');
     if (dest.latitude && dest.longitude) {
       coordsEl.textContent = `${dest.latitude}° N, ${dest.longitude}° E (Verified GPS)`;
     } else {
-      coordsEl.textContent = 'Coordinates unavailable';
+      coordsEl.textContent = '17.7° N, 83.3° E';
     }
 
-    // Things to do
-    const thingsToDoCard = document.getElementById('things-to-do-card');
-    const thingsToDoText = document.getElementById('detail-things-to-do');
-    if (dest.thingsToDo) {
-      thingsToDoText.textContent = dest.thingsToDo;
-    } else if (thingsToDoCard) {
-      thingsToDoCard.style.display = 'none';
+    // Apply login gate or full content
+    if (isAuthenticated()) {
+      applyAuthenticatedContent(dest);
+    } else {
+      applyGatedContent(dest);
     }
 
-    // Travel tips
-    const travelTipsCard = document.getElementById('travel-tips-card');
-    const travelTipsText = document.getElementById('detail-travel-tips');
-    if (dest.travelTips) {
-      travelTipsText.textContent = dest.travelTips;
-    } else if (travelTipsCard) {
-      travelTipsCard.style.display = 'none';
-    }
-
-    // Render Photo Gallery
-    renderGallery(dest.photos, dest.primaryImageUrl, dest.name);
-
-    // Fetch and render Nearby Attractions
+    // Nearby attractions
     loadNearbyAttractions(dest.id);
 
   } catch (err) {
     console.error('Failed to load destination details:', err);
     showErrorState('Failed to Load Destination', 'We could not connect to the server. Please try again later.');
   }
+}
+
+function applyAuthenticatedContent(dest) {
+  const descEl = document.getElementById('detail-description');
+  const descWrapper = document.getElementById('description-wrapper');
+  const gateCard = document.getElementById('login-gate-card');
+
+  // Full Description Unlocked
+  if (descWrapper) descWrapper.classList.remove('login-gate-blur');
+  if (descEl) descEl.textContent = dest.fullDescription || dest.shortDescription;
+  if (gateCard) gateCard.style.display = 'none';
+
+  // Things to Do Card
+  const thingsCard = document.getElementById('things-to-do-card');
+  const thingsText = document.getElementById('detail-things-to-do');
+  if (thingsCard && thingsText) {
+    if (dest.thingsToDo) {
+      thingsText.textContent = dest.thingsToDo;
+      thingsCard.style.display = 'block';
+    } else {
+      thingsCard.style.display = 'none';
+    }
+  }
+
+  // Travel Tips Card
+  const tipsCard = document.getElementById('travel-tips-card');
+  const tipsText = document.getElementById('detail-travel-tips');
+  if (tipsCard && tipsText) {
+    if (dest.travelTips) {
+      tipsText.textContent = dest.travelTips;
+      tipsCard.style.display = 'block';
+    } else {
+      tipsCard.style.display = 'none';
+    }
+  }
+
+  // Photo Gallery
+  const galleryCard = document.getElementById('gallery-card');
+  if (galleryCard) galleryCard.style.display = 'block';
+  renderGallery(dest.photos, dest.primaryImageUrl, dest.name);
+
+  // Full Interactive Tour Packages
+  renderTourPackages(dest);
+}
+
+function applyGatedContent(dest) {
+  const descEl = document.getElementById('detail-description');
+  const descWrapper = document.getElementById('description-wrapper');
+  const gateCard = document.getElementById('login-gate-card');
+
+  // Show only teaser description
+  const teaser = dest.shortDescription || (dest.fullDescription ? dest.fullDescription.substring(0, 150) + '...' : '');
+  if (descEl) descEl.textContent = teaser;
+  if (descWrapper) descWrapper.classList.add('login-gate-blur');
+
+  // Display locked prompt card
+  if (gateCard) {
+    gateCard.style.display = 'block';
+    const currentUrl = window.location.href;
+
+    const loginBtn = document.getElementById('gate-login-btn');
+    if (loginBtn) loginBtn.href = `/login.html?redirect=${encodeURIComponent(currentUrl)}`;
+
+    const regBtn = document.getElementById('gate-register-btn');
+    if (regBtn) regBtn.href = `/register.html?redirect=${encodeURIComponent(currentUrl)}`;
+
+    setupGoogleSignInButton('gate-google-btn', {
+      redirectUrl: currentUrl,
+      onSuccess: () => {
+        updateNavAuth();
+        applyAuthenticatedContent(dest);
+      }
+    });
+  }
+
+  // Hide or lock detailed sub-sections for unauthenticated visitors
+  const thingsCard = document.getElementById('things-to-do-card');
+  if (thingsCard) thingsCard.style.display = 'none';
+
+  const tipsCard = document.getElementById('travel-tips-card');
+  if (tipsCard) tipsCard.style.display = 'none';
+
+  const galleryCard = document.getElementById('gallery-card');
+  if (galleryCard) galleryCard.style.display = 'none';
+
+  // Render Tour Packages Preview Card (Locked state)
+  renderGatedTourPackagesPreview(dest);
+}
+
+function renderTourPackages(dest) {
+  const container = document.getElementById('packages-list');
+  if (!container) return;
+
+  const destName = encodeURIComponent(dest.name);
+  const adminWhatsApp = '916281429422';
+  const adminEmail = 'sivakumarallu4@gmail.com';
+
+  const packages = [
+    {
+      badge: 'Popular Day Tour',
+      badgeClass: 'package-badge-popular',
+      title: 'Vizag City Heritage & Coastal Day Tour',
+      duration: '1 Full Day (8:00 AM – 7:30 PM)',
+      price: '₹1,499',
+      priceSub: 'per person (Private AC Cab included)',
+      highlights: [
+        'Explore Ramakrishna Beach, Submarine Museum & Aircraft Museum',
+        'Panoramic views from Kailasagiri Hill via passenger ropeway',
+        'Visit ancient Buddhist monastery Thotlakonda & Rushikonda Beach',
+        'All entry passes, AC private transport & coastal lunch included'
+      ],
+      whatsappMsg: `Hello Siva Kumar, I want to book the "Vizag City Heritage & Coastal Day Tour" for ${dest.name}. Please share availability.`
+    },
+    {
+      badge: 'Hill Station & Nature',
+      badgeClass: 'package-badge-adventure',
+      title: 'Araku Valley & Borra Caves Mountain Expedition',
+      duration: '2 Days / 1 Night Hill Resort Stay',
+      price: '₹3,999',
+      priceSub: 'per person (Scenic Vistadome Train + Resort)',
+      highlights: [
+        'Scenic Vistadome glass-ceiling train through 54 mountain tunnels',
+        'Explore million-year-old Borra Caves and Katiki forest waterfalls',
+        'Coffee plantation walk, Padmapuram Botanical Gardens & Tribal Museum',
+        'Hilltop resort stay with campfire and authentic Andhra meals'
+      ],
+      whatsappMsg: `Hello Siva Kumar, I am interested in the 2-Day "Araku Valley & Borra Caves Expedition" related to ${dest.name}. Please provide details.`
+    },
+    {
+      badge: 'Winter Special',
+      badgeClass: 'package-badge-special',
+      title: 'Eastern Ghats Mist & Lambasingi Winter Circuit',
+      duration: '3 Days / 2 Nights Scenic Adventure',
+      price: '₹6,499',
+      priceSub: 'per person (Valley Cottages + Sunrise Trek)',
+      highlights: [
+        'Experience Lambasingi mist orchards ("Kashmir of Andhra Pradesh")',
+        'Vanjangi cloud-ocean sunrise trek with experienced guide',
+        'Visit sacred Sri Varaha Lakshmi Narasimha Temple at Simhachalam',
+        'All transfers in private SUV, valley cottage stay & gourmet feasts'
+      ],
+      whatsappMsg: `Hello Siva Kumar, I want to inquire about the 3-Day "Eastern Ghats Mist & Lambasingi Tour" for ${dest.name}.`
+    }
+  ];
+
+  container.innerHTML = packages.map(pkg => `
+    <div class="package-card">
+      <div class="package-header">
+        <div>
+          <span class="package-badge ${pkg.badgeClass}">${pkg.badge}</span>
+          <h3 class="package-title">${pkg.title}</h3>
+          <div class="package-duration">⏱ ${pkg.duration}</div>
+        </div>
+        <div class="package-price">
+          <div class="package-price-val">${pkg.price}</div>
+          <div class="package-price-sub">${pkg.priceSub}</div>
+        </div>
+      </div>
+
+      <ul class="package-highlights">
+        ${pkg.highlights.map(h => `<li>${h}</li>`).join('')}
+      </ul>
+
+      <div class="package-actions">
+        <a href="https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(pkg.whatsappMsg)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="background:#25D366; border-color:#25D366; display:inline-flex; align-items:center; gap:6px;">
+          💬 Book / Inquire via WhatsApp
+        </a>
+        <a href="mailto:${adminEmail}?subject=Tour%20Package%20Inquiry:%20${encodeURIComponent(pkg.title)}&body=${encodeURIComponent(pkg.whatsappMsg)}" class="btn btn-sm btn-outline">
+          ✉ Inquire via Email
+        </a>
+        <a href="tel:+916281429422" class="btn btn-sm btn-outline" title="Call Visakha Tourism Concierge">
+          📞 +91 6281429422
+        </a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderGatedTourPackagesPreview(dest) {
+  const container = document.getElementById('packages-list');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; padding:32px 20px; text-align:center;">
+      <div style="font-size:2rem; margin-bottom:8px;">🔒</div>
+      <h4 style="font-size:1.1rem; font-weight:700; color:#1e293b; margin-bottom:6px;">Curated Tour Packages Locked</h4>
+      <p style="font-size:0.88rem; color:#64748b; max-width:480px; margin:0 auto 16px;">
+        Exclusive multi-day circuits, private transport packages, and customized itineraries for ${dest.name} are available to registered travelers.
+      </p>
+      <button type="button" id="unlock-packages-google-btn" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:8px;">
+        Sign In with Google to Unlock Packages
+      </button>
+    </div>
+  `;
+
+  document.getElementById('unlock-packages-google-btn')?.addEventListener('click', () => {
+    const gateBtn = document.getElementById('gate-google-btn');
+    if (gateBtn) gateBtn.click();
+  });
 }
 
 function renderGallery(photos, primaryUrl, destName) {

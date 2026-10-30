@@ -1,0 +1,27 @@
+{
+  "name": "Visakha Tourism",
+  "short_name": "VisakhaTourism",
+  "description": "Official Travel & Tourism Portal for Visakhapatnam, Andhra Pradesh",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0369a1",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
