@@ -20,15 +20,18 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final OtpService otpService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
     public AuthService(UserRepository userRepository,
                        OtpService otpService,
+                       EmailService emailService,
                        PasswordEncoder passwordEncoder,
                        JwtTokenProvider tokenProvider) {
         this.userRepository = userRepository;
         this.otpService = otpService;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
     }
@@ -207,5 +210,9 @@ public class AuthService {
                 user.isEmailVerified(),
                 user.getCreatedAt()
         );
+    }
+
+    public void sendTestEmail(String to) {
+        emailService.sendTestEmail(to);
     }
 }

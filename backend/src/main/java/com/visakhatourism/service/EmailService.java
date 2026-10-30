@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -18,16 +19,16 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:}")
+    @Value("${spring.mail.username:sivakumarallu4@gmail.com}")
     private String smtpUsername;
 
-    @Value("${spring.mail.password:}")
+    @Value("${spring.mail.password:ngoxdhtmsakhlcir}")
     private String smtpPassword;
 
     @Value("${app.mail.sender:sivakumarallu4@gmail.com}")
     private String mailSenderAddress;
 
-    public EmailService(@Autowired(required = false) JavaMailSender mailSender) {
+    public EmailService(@Autowired JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
@@ -36,12 +37,11 @@ public class EmailService {
         String subject = "Visakha Tourism - " + (purpose.equalsIgnoreCase("REGISTRATION") ? "Account Verification OTP" : "Password Reset OTP");
         String htmlContent = buildOtpHtmlContent(otp, purpose);
 
-        // Check if SMTP is realistically configured
         if (mailSender == null || !StringUtils.hasText(smtpUsername) || !StringUtils.hasText(smtpPassword)) {
-            logger.warn("SMTP credentials not fully configured (username: {}, password set: {}). Logging OTP for local development.",
+            logger.warn("SMTP credentials missing (username: {}, password set: {}). Logging OTP to server console.",
                     smtpUsername, StringUtils.hasText(smtpPassword));
             logger.info("==================================================================");
-            logger.info("[DEV MODE EMAIL NOTIFICATION]");
+            logger.info("[FALLBACK OTP NOTIFICATION]");
             logger.info("Recipient: {}", recipientEmail);
             logger.info("Purpose  : {}", purpose);
             logger.info(">>> ONE-TIME PASSWORD (OTP): {} <<< (Valid for 5 minutes)", otp);
@@ -63,6 +63,16 @@ public class EmailService {
             logger.error("Failed to deliver live email via SMTP to {}: {}. Logging OTP as fallback.", recipientEmail, ex.getMessage(), ex);
             logger.info(">>> FALLBACK OTP for {}: {} <<<", recipientEmail, otp);
         }
+    }
+
+    public void sendTestEmail(String recipientEmail) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(mailSenderAddress);
+        message.setTo(recipientEmail);
+        message.setSubject("Visakha Tourism - SMTP Live Verification Test");
+        message.setText("Congratulations! Your SMTP live email delivery service is working properly on Visakha Tourism.");
+        mailSender.send(message);
+        logger.info("Test email successfully dispatched to {}", recipientEmail);
     }
 
     private String buildOtpHtmlContent(String otp, String purpose) {

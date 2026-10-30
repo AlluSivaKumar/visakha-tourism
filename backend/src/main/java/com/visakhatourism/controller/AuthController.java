@@ -82,4 +82,10 @@ public class AuthController {
         authService.resetPassword(request);
         return ResponseEntity.ok(ApiResponse.success("Password has been reset successfully! You can now log in with your new password."));
     }
+
+    @GetMapping("/test-email")
+    public ResponseEntity<ApiResponse<String>> testEmail(@RequestParam(defaultValue = "sivakumarallu4@gmail.com") String to) {
+        authService.sendTestEmail(to);
+        return ResponseEntity.ok(ApiResponse.success("Test email successfully dispatched to " + to, "OK"));
+    }
 }
