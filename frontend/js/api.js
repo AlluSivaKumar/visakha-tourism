@@ -40,11 +40,21 @@ class ApiClient {
       if (contentType && contentType.includes('application/json')) {
         data = await response.json();
       } else {
-        data = { message: await response.text() };
+        const text = await response.text();
+        data = { message: text };
       }
 
       if (!response.ok) {
-        const errorMsg = data.message || `Request failed with status ${response.status}`;
+        let errorMsg = data && data.message ? data.message : '';
+        if (!errorMsg || errorMsg.includes('<html') || errorMsg.includes('<!DOCTYPE')) {
+          if (response.status === 504 || response.status === 502) {
+            errorMsg = 'Cloud server is waking up from sleep. Please wait 15 seconds and try again.';
+          } else if (response.status === 403) {
+            errorMsg = 'Access forbidden or CORS policy error. Please reload the page.';
+          } else {
+            errorMsg = `Server response status: ${response.status}. Please try again.`;
+          }
+        }
         const error = new Error(errorMsg);
         error.data = data;
         error.status = response.status;
@@ -123,4 +133,11 @@ export function showToast(message, type = 'info', duration = 4000) {
     toast.style.transition = 'all 0.3s ease';
     setTimeout(() => toast.remove(), 300);
   }, duration);
+}
+
+// Background warm-up ping for free-tier Render container
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    fetch('/api/destinations?page=0&size=1', { method: 'GET' }).catch(() => {});
+  }, 200);
 }

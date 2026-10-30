@@ -19,6 +19,7 @@
       <ul class="nav-links">
         <li><a href="/index.html" class="nav-link">Home</a></li>
         <li><a href="/destinations.html" class="nav-link">Destinations</a></li>
+        <li><a href="/itineraries.html" class="nav-link">Itineraries</a></li>
       </ul>
 
       <div class="nav-actions">
@@ -41,7 +42,7 @@
       <form id="register-form">
         <div class="form-group">
           <label for="reg-name" class="form-label">Full Name</label>
-          <input type="text" id="reg-name" class="form-input" placeholder="e.g. Sravani Rao" required minlength="2">
+          <input type="text" id="reg-name" class="form-input" placeholder="e.g. Siva Kumar" required minlength="2">
         </div>
 
         <div class="form-group">
@@ -97,7 +98,7 @@
       }
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner"></span> Generating verification code...';
+      submitBtn.innerHTML = '<span class="spinner"></span> Creating account & sending code...';
 
       try {
         await api.post('/auth/register', {
@@ -122,6 +123,10 @@
         alertBox.style.color = '#b91c1c';
         alertBox.style.border = '1px solid #f87171';
         alertBox.textContent = err.message || 'Registration failed. Please try again.';
+
+        if (err.message && err.message.toLowerCase().includes('already exists')) {
+          alertBox.innerHTML = `${err.message} <br><a href="/login.html" style="color:#b91c1c;font-weight:700;text-decoration:underline;margin-top:6px;display:inline-block;">Click here to Sign In →</a>`;
+        }
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Send Verification OTP';

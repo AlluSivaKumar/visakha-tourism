@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -30,6 +31,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void sendOtpEmail(String recipientEmail, String otp, String purpose) {
         String subject = "Visakha Tourism - " + (purpose.equalsIgnoreCase("REGISTRATION") ? "Account Verification OTP" : "Password Reset OTP");
         String htmlContent = buildOtpHtmlContent(otp, purpose);
@@ -100,9 +102,8 @@ public class EmailService {
                             If you did not request this, you can safely ignore this email.
                         </p>
                         <div class="footer">
-                            Visakha Tourism Portal • Visakhapatnam, Andhra Pradesh, India<br>
-                            Support: +91 6281429422 | sivakumarallu4@gmail.com | Gajuwaka, Visakhapatnam<br>
-                            This is an automated security communication.
+                            Visakha Tourism • Andhra Pradesh Tourism Initiative<br>
+                            Visakhapatnam, Andhra Pradesh, India
                         </div>
                     </div>
                 </body>

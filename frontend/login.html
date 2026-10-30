@@ -19,6 +19,7 @@
       <ul class="nav-links">
         <li><a href="/index.html" class="nav-link">Home</a></li>
         <li><a href="/destinations.html" class="nav-link">Destinations</a></li>
+        <li><a href="/itineraries.html" class="nav-link">Itineraries</a></li>
       </ul>
 
       <div class="nav-actions">
@@ -105,7 +106,7 @@
         showToast('Login successful! Welcome back.', 'success');
 
         const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect') || '/destinations.html';
+        const redirect = params.get('redirect') || (authData.role === 'ROLE_ADMIN' ? '/admin-dashboard.html' : '/destinations.html');
         setTimeout(() => {
           window.location.href = redirect;
         }, 600);
