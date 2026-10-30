@@ -1,4 +1,4 @@
-// Visakha Tourism Auth Helper
+// Visakha Tourism Auth Helper (Admin Only Management)
 
 import { api, showToast } from './api.js';
 
@@ -11,13 +11,9 @@ export function getUser() {
   return user ? JSON.parse(user) : null;
 }
 
-export function isAuthenticated() {
-  return !!getToken();
-}
-
 export function isAdmin() {
   const user = getUser();
-  return user && user.role === 'ROLE_ADMIN';
+  return !!getToken() && user && user.role === 'ROLE_ADMIN';
 }
 
 export function setSession(token, user) {
@@ -37,24 +33,15 @@ export async function logout() {
     // Ignore error on logout
   } finally {
     clearSession();
-    showToast('You have been logged out successfully', 'info');
+    showToast('Administrator signed out successfully', 'info');
     setTimeout(() => {
       window.location.href = '/index.html';
-    }, 600);
+    }, 500);
   }
-}
-
-export function requireAuth() {
-  if (!isAuthenticated()) {
-    const current = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.href = `/login.html?redirect=${current}`;
-    return false;
-  }
-  return true;
 }
 
 export function requireAdmin() {
-  if (!isAuthenticated() || !isAdmin()) {
+  if (!isAdmin()) {
     window.location.href = '/admin-login.html';
     return false;
   }
@@ -65,27 +52,20 @@ export function updateNavAuth() {
   const navActions = document.querySelector('.nav-actions');
   if (!navActions) return;
 
-  if (isAuthenticated()) {
-    const user = getUser() || { name: 'Traveler' };
-    const adminLink = isAdmin()
-      ? `<a href="/admin-dashboard.html" class="btn btn-sm btn-outline" style="background:#0284c7;color:#fff;border-color:#0284c7;">⚙ Admin</a>`
-      : '';
-
+  if (isAdmin()) {
+    const user = getUser() || { name: 'Admin' };
     navActions.innerHTML = `
-      ${adminLink}
-      <a href="/profile.html" class="btn btn-sm btn-outline" title="My Profile">👤 ${user.name.split(' ')[0]}</a>
-      <button id="logout-btn" class="btn btn-sm btn-outline" style="color:var(--danger);">Logout</button>
+      <a href="/admin-dashboard.html" class="btn btn-sm btn-outline" style="background:#0284c7;color:#fff;border-color:#0284c7;">⚙ Admin Dashboard</a>
+      <button id="admin-nav-logout-btn" class="btn btn-sm btn-outline" style="color:var(--danger);cursor:pointer;">Sign Out</button>
     `;
 
-    document.getElementById('logout-btn')?.addEventListener('click', (e) => {
+    document.getElementById('admin-nav-logout-btn')?.addEventListener('click', (e) => {
       e.preventDefault();
       logout();
     });
   } else {
     navActions.innerHTML = `
-      <a href="/admin-login.html" class="nav-link" style="font-size:0.85rem;color:var(--text-muted);margin-right:6px;" title="Administrator Portal">Admin</a>
-      <a href="/login.html" class="btn btn-sm btn-outline">Log In</a>
-      <a href="/register.html" class="btn btn-sm btn-primary">Sign Up</a>
+      <a href="/admin-login.html" class="btn btn-sm btn-outline" title="Administrator Portal">Admin Login</a>
     `;
   }
 }

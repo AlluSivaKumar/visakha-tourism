@@ -1,10 +1,6 @@
-// Visakha Tourism Destination Details Page Controller with Login-Gating & Packages
+// Visakha Tourism Destination Details Page Controller (Public Viewing)
 
 import { api, showToast } from './api.js';
-import { isAuthenticated, updateNavAuth } from './auth.js';
-import { setupGoogleSignInButton } from './google-auth.js';
-
-let currentDestination = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
@@ -30,8 +26,6 @@ async function loadDestinationDetails(slug) {
       return;
     }
 
-    currentDestination = dest;
-
     // Set page title
     document.title = `${dest.name} - Visakha Tourism`;
 
@@ -48,6 +42,9 @@ async function loadDestinationDetails(slug) {
       directionsBtn.title = `Get directions to ${dest.name} on Google Maps`;
     }
 
+    // Description (Full description completely open)
+    document.getElementById('detail-description').textContent = dest.fullDescription || dest.shortDescription;
+
     // Key facts (Publicly visible)
     document.getElementById('fact-hours').textContent = dest.openingHours || 'Open daily';
     document.getElementById('fact-price').textContent = dest.ticketPrice || 'Free entry / Nominal';
@@ -61,12 +58,35 @@ async function loadDestinationDetails(slug) {
       coordsEl.textContent = '17.7° N, 83.3° E';
     }
 
-    // Apply login gate or full content
-    if (isAuthenticated()) {
-      applyAuthenticatedContent(dest);
-    } else {
-      applyGatedContent(dest);
+    // Things to Do Card
+    const thingsCard = document.getElementById('things-to-do-card');
+    const thingsText = document.getElementById('detail-things-to-do');
+    if (thingsCard && thingsText) {
+      if (dest.thingsToDo) {
+        thingsText.textContent = dest.thingsToDo;
+        thingsCard.style.display = 'block';
+      } else {
+        thingsCard.style.display = 'none';
+      }
     }
+
+    // Travel Tips Card
+    const tipsCard = document.getElementById('travel-tips-card');
+    const tipsText = document.getElementById('detail-travel-tips');
+    if (tipsCard && tipsText) {
+      if (dest.travelTips) {
+        tipsText.textContent = dest.travelTips;
+        tipsCard.style.display = 'block';
+      } else {
+        tipsCard.style.display = 'none';
+      }
+    }
+
+    // Photo Gallery
+    renderGallery(dest.photos, dest.primaryImageUrl, dest.name);
+
+    // Curated Tour Packages
+    renderTourPackages(dest);
 
     // Nearby attractions
     loadNearbyAttractions(dest.id);
@@ -77,98 +97,10 @@ async function loadDestinationDetails(slug) {
   }
 }
 
-function applyAuthenticatedContent(dest) {
-  const descEl = document.getElementById('detail-description');
-  const descWrapper = document.getElementById('description-wrapper');
-  const gateCard = document.getElementById('login-gate-card');
-
-  // Full Description Unlocked
-  if (descWrapper) descWrapper.classList.remove('login-gate-blur');
-  if (descEl) descEl.textContent = dest.fullDescription || dest.shortDescription;
-  if (gateCard) gateCard.style.display = 'none';
-
-  // Things to Do Card
-  const thingsCard = document.getElementById('things-to-do-card');
-  const thingsText = document.getElementById('detail-things-to-do');
-  if (thingsCard && thingsText) {
-    if (dest.thingsToDo) {
-      thingsText.textContent = dest.thingsToDo;
-      thingsCard.style.display = 'block';
-    } else {
-      thingsCard.style.display = 'none';
-    }
-  }
-
-  // Travel Tips Card
-  const tipsCard = document.getElementById('travel-tips-card');
-  const tipsText = document.getElementById('detail-travel-tips');
-  if (tipsCard && tipsText) {
-    if (dest.travelTips) {
-      tipsText.textContent = dest.travelTips;
-      tipsCard.style.display = 'block';
-    } else {
-      tipsCard.style.display = 'none';
-    }
-  }
-
-  // Photo Gallery
-  const galleryCard = document.getElementById('gallery-card');
-  if (galleryCard) galleryCard.style.display = 'block';
-  renderGallery(dest.photos, dest.primaryImageUrl, dest.name);
-
-  // Full Interactive Tour Packages
-  renderTourPackages(dest);
-}
-
-function applyGatedContent(dest) {
-  const descEl = document.getElementById('detail-description');
-  const descWrapper = document.getElementById('description-wrapper');
-  const gateCard = document.getElementById('login-gate-card');
-
-  // Show only teaser description
-  const teaser = dest.shortDescription || (dest.fullDescription ? dest.fullDescription.substring(0, 150) + '...' : '');
-  if (descEl) descEl.textContent = teaser;
-  if (descWrapper) descWrapper.classList.add('login-gate-blur');
-
-  // Display locked prompt card
-  if (gateCard) {
-    gateCard.style.display = 'block';
-    const currentUrl = window.location.href;
-
-    const loginBtn = document.getElementById('gate-login-btn');
-    if (loginBtn) loginBtn.href = `/login.html?redirect=${encodeURIComponent(currentUrl)}`;
-
-    const regBtn = document.getElementById('gate-register-btn');
-    if (regBtn) regBtn.href = `/register.html?redirect=${encodeURIComponent(currentUrl)}`;
-
-    setupGoogleSignInButton('gate-google-btn', {
-      redirectUrl: currentUrl,
-      onSuccess: () => {
-        updateNavAuth();
-        applyAuthenticatedContent(dest);
-      }
-    });
-  }
-
-  // Hide or lock detailed sub-sections for unauthenticated visitors
-  const thingsCard = document.getElementById('things-to-do-card');
-  if (thingsCard) thingsCard.style.display = 'none';
-
-  const tipsCard = document.getElementById('travel-tips-card');
-  if (tipsCard) tipsCard.style.display = 'none';
-
-  const galleryCard = document.getElementById('gallery-card');
-  if (galleryCard) galleryCard.style.display = 'none';
-
-  // Render Tour Packages Preview Card (Locked state)
-  renderGatedTourPackagesPreview(dest);
-}
-
 function renderTourPackages(dest) {
   const container = document.getElementById('packages-list');
   if (!container) return;
 
-  const destName = encodeURIComponent(dest.name);
   const adminWhatsApp = '916281429422';
   const adminEmail = 'sivakumarallu4@gmail.com';
 
@@ -251,29 +183,6 @@ function renderTourPackages(dest) {
       </div>
     </div>
   `).join('');
-}
-
-function renderGatedTourPackagesPreview(dest) {
-  const container = document.getElementById('packages-list');
-  if (!container) return;
-
-  container.innerHTML = `
-    <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; padding:32px 20px; text-align:center;">
-      <div style="font-size:2rem; margin-bottom:8px;">🔒</div>
-      <h4 style="font-size:1.1rem; font-weight:700; color:#1e293b; margin-bottom:6px;">Curated Tour Packages Locked</h4>
-      <p style="font-size:0.88rem; color:#64748b; max-width:480px; margin:0 auto 16px;">
-        Exclusive multi-day circuits, private transport packages, and customized itineraries for ${dest.name} are available to registered travelers.
-      </p>
-      <button type="button" id="unlock-packages-google-btn" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:8px;">
-        Sign In with Google to Unlock Packages
-      </button>
-    </div>
-  `;
-
-  document.getElementById('unlock-packages-google-btn')?.addEventListener('click', () => {
-    const gateBtn = document.getElementById('gate-google-btn');
-    if (gateBtn) gateBtn.click();
-  });
 }
 
 function renderGallery(photos, primaryUrl, destName) {

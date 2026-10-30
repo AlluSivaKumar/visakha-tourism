@@ -4,8 +4,18 @@
   # Directory where frontend HTML/CSS/JS files reside
   publish = "frontend"
 
+# Convenience redirects for removed user auth
+[[redirects]]
+  from = "/login"
+  to = "/admin-login.html"
+  status = 302
+
+[[redirects]]
+  from = "/register"
+  to = "/index.html"
+  status = 302
+
 # Reverse Proxy for Spring Boot Backend API
-# Replace 'https://visakha-backend.onrender.com' with your actual backend URL once deployed
 [[redirects]]
   from = "/api/*"
   to = "https://visakha-tourism-backend.onrender.com/api/:splat"

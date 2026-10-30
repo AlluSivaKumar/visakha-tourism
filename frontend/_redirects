@@ -1,1 +1,9 @@
+/login.html        /admin-login.html  302
+/login             /admin-login.html  302
+/register.html     /index.html        302
+/register          /index.html        302
+/verify-otp.html   /index.html        302
+/forgot-password.html /index.html     302
+/reset-password.html  /index.html     302
+/profile.html      /index.html        302
 /api/*  https://visakha-tourism-backend.onrender.com/api/:splat  200!

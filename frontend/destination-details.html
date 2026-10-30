@@ -1,10 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Destination Details - Visakha Tourism</title>
-  <meta name="description" content="Discover detailed guides, photos, travel advice, and curated tour packages for premier attractions in Visakhapatnam.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -17,6 +13,10 @@
   <meta property="og:image:height" content="512">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://visakhatourism.in/images/logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Destination Details - Visakha Tourism</title>
+  <meta name="description" content="Discover detailed guides, photos, travel advice, and curated tour packages for premier attractions in Visakhapatnam.">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -38,9 +38,8 @@
       </ul>
 
       <div class="nav-actions">
-        <!-- Injected dynamically by auth.js -->
-        <a href="/login.html" class="btn btn-sm btn-outline">Log In</a>
-        <a href="/register.html" class="btn btn-sm btn-primary">Sign Up</a>
+        <!-- Managed dynamically by auth.js -->
+        <a href="/admin-login.html" class="btn btn-sm btn-outline">Admin Login</a>
       </div>
 
       <button class="mobile-toggle" aria-label="Toggle navigation">☰</button>
@@ -78,40 +77,9 @@
             </div>
           </div>
 
-          <!-- Description text wrapper -->
-          <div id="description-wrapper">
-            <p id="detail-description" style="color:var(--text-main); font-size:1.05rem; line-height:1.8; white-space:pre-line;">
-              Loading detailed information...
-            </p>
-          </div>
-
-          <!-- Login Gate Card (Shown when traveler is NOT logged in) -->
-          <div id="login-gate-card" style="display:none; margin-top:20px; background:linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border:1px solid #bae6fd; border-radius:16px; padding:28px 24px; text-align:center;">
-            <div style="font-size:2.5rem; margin-bottom:10px;">🔒</div>
-            <h3 style="font-size:1.3rem; font-weight:800; color:#0369a1; margin-bottom:8px;">Unlock Full Destination Guide & Tour Packages</h3>
-            <p style="font-size:0.92rem; color:#0c4a6e; max-width:560px; margin:0 auto 20px; line-height:1.6;">
-              Sign in or continue with Google to view complete historical narratives, expert visitor advice, things to do, high-definition photo gallery, and exclusive curated Vizag tour packages.
-            </p>
-
-            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:14px;">
-              <button type="button" id="gate-google-btn" class="btn" style="display:inline-flex; align-items:center; gap:8px; background:#ffffff; color:#374151; border:1px solid #cbd5e1; font-weight:600; padding:11px 20px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1); cursor:pointer;">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                <span>Continue with Google</span>
-              </button>
-              <a id="gate-login-btn" href="/login.html" class="btn btn-primary" style="padding:11px 20px;">
-                Sign In with Email
-              </a>
-              <a id="gate-register-btn" href="/register.html" class="btn btn-outline" style="padding:11px 20px; background:#fff;">
-                Create Free Account
-              </a>
-            </div>
-            <div style="font-size:0.8rem; color:#0284c7;">⚡ Instant activation • No OTP verification needed</div>
-          </div>
+          <p id="detail-description" style="color:var(--text-main); font-size:1.05rem; line-height:1.8; white-space:pre-line;">
+            Loading detailed information...
+          </p>
         </div>
 
         <!-- Curated Tour Packages Card -->
@@ -236,7 +204,7 @@
             Visakha Tourism
           </div>
           <p class="footer-desc">
-            Your official digital guide to exploring the City of Destiny.
+            Your official digital guide to exploring the City of Destiny. Discover scenic beaches, mountain getaways, spiritual landmarks, and naval heritage.
           </p>
         </div>
 
@@ -246,15 +214,16 @@
             <li><a href="/destinations.html">All Destinations</a></li>
             <li><a href="/destinations.html?category=1">Beaches</a></li>
             <li><a href="/destinations.html?category=2">Hills & Nature</a></li>
+            <li><a href="/itineraries.html">Travel Plans</a></li>
           </ul>
         </div>
 
         <div>
-          <h4 class="footer-title">Account</h4>
+          <h4 class="footer-title">Management</h4>
           <ul class="footer-links">
-            <li><a href="/login.html">User Login</a></li>
-            <li><a href="/register.html">Create Account</a></li>
-            <li><a href="/admin-login.html">Admin Portal</a></li>
+            <li><a href="/admin-login.html">Administrator Login</a></li>
+            <li><a href="/admin-dashboard.html">Admin Dashboard</a></li>
+            <li><a href="/admin-destinations.html">Manage Destinations</a></li>
           </ul>
         </div>
 
