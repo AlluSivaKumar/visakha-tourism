@@ -34,24 +34,51 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.countByRole(Role.ROLE_ADMIN) == 0) {
-            String normalizedEmail = adminEmail.toLowerCase().trim();
-            if (userRepository.findByEmail(normalizedEmail).isEmpty()) {
-                User admin = new User(
-                        adminName,
-                        normalizedEmail,
-                        passwordEncoder.encode(adminPassword),
-                        Role.ROLE_ADMIN,
-                        true, // verified
-                        true  // enabled
-                );
-                userRepository.save(admin);
-                logger.info("==========================================================");
-                logger.info("Initial Administrator bootstrapped successfully!");
-                logger.info("Admin Email: {}", normalizedEmail);
-                logger.info("Role       : ROLE_ADMIN");
-                logger.info("==========================================================");
-            }
+        // Ensure Primary Author & Administrator: Siva Kumar Allu
+        String normalizedEmail = adminEmail.toLowerCase().trim();
+        if (userRepository.findByEmail(normalizedEmail).isEmpty()) {
+            User admin = new User(
+                    adminName,
+                    normalizedEmail,
+                    passwordEncoder.encode(adminPassword),
+                    Role.ROLE_ADMIN,
+                    true, // verified
+                    true  // enabled
+            );
+            userRepository.save(admin);
+            logger.info("==========================================================");
+            logger.info("Primary Administrator bootstrapped: {} ({})", adminName, normalizedEmail);
+            logger.info("Role       : ROLE_ADMIN");
+            logger.info("==========================================================");
         }
+
+        // Ensure Second Author & Administrator: Rakesh Paragada
+        String rakeshEmail = "rakeshparagada2004@gmail.com";
+        userRepository.findByEmail(rakeshEmail).ifPresentOrElse(
+                u -> {
+                    if (u.getRole() != Role.ROLE_ADMIN) {
+                        u.setRole(Role.ROLE_ADMIN);
+                        u.setEmailVerified(true);
+                        u.setEnabled(true);
+                        userRepository.save(u);
+                        logger.info("Upgraded existing user to ROLE_ADMIN: Rakesh Paragada ({})", rakeshEmail);
+                    }
+                },
+                () -> {
+                    User rakesh = new User(
+                            "Rakesh Paragada",
+                            rakeshEmail,
+                            passwordEncoder.encode(adminPassword),
+                            Role.ROLE_ADMIN,
+                            true, // verified
+                            true  // enabled
+                    );
+                    userRepository.save(rakesh);
+                    logger.info("==========================================================");
+                    logger.info("Second Author & Administrator bootstrapped: Rakesh Paragada ({})", rakeshEmail);
+                    logger.info("Role       : ROLE_ADMIN");
+                    logger.info("==========================================================");
+                }
+        );
     }
 }

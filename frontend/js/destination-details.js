@@ -1,6 +1,9 @@
-// Visakha Tourism Destination Details Page Controller (Public Viewing)
+// Visakha Tourism Destination Details Page Controller (Instant Cache-First Architecture)
 
 import { api, showToast } from './api.js';
+import { FALLBACK_DESTINATIONS } from './destinations-data.js';
+
+let currentDestination = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
@@ -16,84 +19,123 @@ document.addEventListener('DOMContentLoaded', () => {
   initLightbox();
 });
 
-async function loadDestinationDetails(slug) {
+function findLocalDestination(slug) {
   try {
-    const res = await api.get(`/destinations/${slug}`);
-    const dest = res.data;
-
-    if (!dest) {
-      showErrorState('Destination Not Found', 'The requested travel destination could not be found.');
-      return;
+    const cached = localStorage.getItem('vt_cached_destinations_v1');
+    if (cached) {
+      const list = JSON.parse(cached);
+      const found = list.find(d => d.slug === slug);
+      if (found) return found;
     }
+  } catch (e) {}
+  return FALLBACK_DESTINATIONS.find(d => d.slug === slug);
+}
 
-    // Set page title
-    document.title = `${dest.name} - Visakha Tourism`;
+function renderDestinationData(dest) {
+  currentDestination = dest;
 
-    // Render Hero Banner
-    document.getElementById('detail-hero-img').src = dest.primaryImageUrl;
-    document.getElementById('detail-title').textContent = dest.name;
-    document.getElementById('detail-category-badge').textContent = dest.category?.name || 'Attraction';
-    document.getElementById('detail-address').textContent = dest.address;
+  // Set page title
+  document.title = `${dest.name} - Visakha Tourism`;
 
-    // Directions Button
-    const directionsBtn = document.getElementById('detail-directions-btn');
-    if (directionsBtn) {
-      directionsBtn.href = dest.directionsUrl;
-      directionsBtn.title = `Get directions to ${dest.name} on Google Maps`;
-    }
+  // Render Hero Banner
+  const heroImg = document.getElementById('detail-hero-img');
+  if (heroImg) heroImg.src = dest.primaryImageUrl;
 
-    // Description (Full description completely open)
-    document.getElementById('detail-description').textContent = dest.fullDescription || dest.shortDescription;
+  const titleEl = document.getElementById('detail-title');
+  if (titleEl) titleEl.textContent = dest.name;
 
-    // Key facts (Publicly visible)
-    document.getElementById('fact-hours').textContent = dest.openingHours || 'Open daily';
-    document.getElementById('fact-price').textContent = dest.ticketPrice || 'Free entry / Nominal';
-    document.getElementById('fact-best-time').textContent = dest.bestTimeToVisit || 'October to March';
+  const catBadge = document.getElementById('detail-category-badge');
+  if (catBadge) catBadge.textContent = dest.categoryName || dest.category?.name || 'Attraction';
 
-    // GPS Coordinates
-    const coordsEl = document.getElementById('fact-coords');
+  const addrEl = document.getElementById('detail-address');
+  if (addrEl) addrEl.textContent = dest.address;
+
+  // Directions Button
+  const directionsBtn = document.getElementById('detail-directions-btn');
+  if (directionsBtn) {
+    directionsBtn.href = dest.directionsUrl || (`https://www.google.com/maps/dir/?api=1&destination=${dest.latitude},${dest.longitude}`);
+    directionsBtn.title = `Get directions to ${dest.name} on Google Maps`;
+  }
+
+  // Description
+  const descEl = document.getElementById('detail-description');
+  if (descEl) descEl.textContent = dest.fullDescription || dest.shortDescription;
+
+  // Key facts
+  const hoursEl = document.getElementById('fact-hours');
+  if (hoursEl) hoursEl.textContent = dest.openingHours || 'Open daily';
+
+  const priceEl = document.getElementById('fact-price');
+  if (priceEl) priceEl.textContent = dest.ticketPrice || 'Free entry / Nominal';
+
+  const bestTimeEl = document.getElementById('fact-best-time');
+  if (bestTimeEl) bestTimeEl.textContent = dest.bestTimeToVisit || 'October to March';
+
+  // GPS Coordinates
+  const coordsEl = document.getElementById('fact-coords');
+  if (coordsEl) {
     if (dest.latitude && dest.longitude) {
       coordsEl.textContent = `${dest.latitude}° N, ${dest.longitude}° E (Verified GPS)`;
     } else {
       coordsEl.textContent = '17.7° N, 83.3° E';
     }
+  }
 
-    // Things to Do Card
-    const thingsCard = document.getElementById('things-to-do-card');
-    const thingsText = document.getElementById('detail-things-to-do');
-    if (thingsCard && thingsText) {
-      if (dest.thingsToDo) {
-        thingsText.textContent = dest.thingsToDo;
-        thingsCard.style.display = 'block';
-      } else {
-        thingsCard.style.display = 'none';
-      }
+  // Things to Do Card
+  const thingsCard = document.getElementById('things-to-do-card');
+  const thingsText = document.getElementById('detail-things-to-do');
+  if (thingsCard && thingsText) {
+    if (dest.thingsToDo) {
+      thingsText.textContent = dest.thingsToDo;
+      thingsCard.style.display = 'block';
+    } else {
+      thingsCard.style.display = 'none';
     }
+  }
 
-    // Travel Tips Card
-    const tipsCard = document.getElementById('travel-tips-card');
-    const tipsText = document.getElementById('detail-travel-tips');
-    if (tipsCard && tipsText) {
-      if (dest.travelTips) {
-        tipsText.textContent = dest.travelTips;
-        tipsCard.style.display = 'block';
-      } else {
-        tipsCard.style.display = 'none';
-      }
+  // Travel Tips Card
+  const tipsCard = document.getElementById('travel-tips-card');
+  const tipsText = document.getElementById('detail-travel-tips');
+  if (tipsCard && tipsText) {
+    if (dest.travelTips) {
+      tipsText.textContent = dest.travelTips;
+      tipsCard.style.display = 'block';
+    } else {
+      tipsCard.style.display = 'none';
     }
+  }
 
-    // Photo Gallery
-    renderGallery(dest.photos, dest.primaryImageUrl, dest.name);
+  // Photo Gallery
+  renderGallery(dest.photos, dest.primaryImageUrl, dest.name);
 
-    // Curated Tour Packages
-    renderTourPackages(dest);
+  // Curated Tour Packages
+  renderTourPackages(dest);
 
-    // Nearby attractions
-    loadNearbyAttractions(dest.id);
+  // Nearby attractions
+  loadNearbyAttractions(dest.id, dest.latitude, dest.longitude);
+}
 
+async function loadDestinationDetails(slug) {
+  // 1. Instant render from verified cache (0ms!)
+  const localDest = findLocalDestination(slug);
+  if (localDest) {
+    renderDestinationData(localDest);
+  }
+
+  // 2. Background sync with backend for fresh media / admin updates
+  try {
+    const res = await api.get(`/destinations/${slug}`);
+    const serverDest = res.data;
+
+    if (serverDest) {
+      renderDestinationData(serverDest);
+    } else if (!localDest) {
+      showErrorState('Destination Not Found', 'The requested travel destination could not be found.');
+    }
   } catch (err) {
-    console.error('Failed to load destination details:', err);
-    showErrorState('Failed to Load Destination', 'We could not connect to the server. Please try again later.');
+    if (!localDest) {
+      showErrorState('Failed to Load Destination', 'We could not connect to the server. Please try again later.');
+    }
   }
 }
 
@@ -102,7 +144,7 @@ function renderTourPackages(dest) {
   if (!container) return;
 
   const adminWhatsApp = '916281429422';
-  const adminEmail = 'sivakumarallu4@gmail.com';
+  const adminEmails = 'sivakumarallu4@gmail.com,rakeshparagada2004@gmail.com';
 
   const packages = [
     {
@@ -118,7 +160,7 @@ function renderTourPackages(dest) {
         'Visit ancient Buddhist monastery Thotlakonda & Rushikonda Beach',
         'All entry passes, AC private transport & coastal lunch included'
       ],
-      whatsappMsg: `Hello Siva Kumar, I want to book the "Vizag City Heritage & Coastal Day Tour" for ${dest.name}. Please share availability.`
+      whatsappMsg: `Hello Siva Kumar & Rakesh, I want to book the "Vizag City Heritage & Coastal Day Tour" for ${dest.name}. Please share availability.`
     },
     {
       badge: 'Hill Station & Nature',
@@ -133,7 +175,7 @@ function renderTourPackages(dest) {
         'Coffee plantation walk, Padmapuram Botanical Gardens & Tribal Museum',
         'Hilltop resort stay with campfire and authentic Andhra meals'
       ],
-      whatsappMsg: `Hello Siva Kumar, I am interested in the 2-Day "Araku Valley & Borra Caves Expedition" related to ${dest.name}. Please provide details.`
+      whatsappMsg: `Hello Siva Kumar & Rakesh, I am interested in the 2-Day "Araku Valley & Borra Caves Expedition" related to ${dest.name}. Please provide details.`
     },
     {
       badge: 'Winter Special',
@@ -148,7 +190,7 @@ function renderTourPackages(dest) {
         'Visit sacred Sri Varaha Lakshmi Narasimha Temple at Simhachalam',
         'All transfers in private SUV, valley cottage stay & gourmet feasts'
       ],
-      whatsappMsg: `Hello Siva Kumar, I want to inquire about the 3-Day "Eastern Ghats Mist & Lambasingi Tour" for ${dest.name}.`
+      whatsappMsg: `Hello Siva Kumar & Rakesh, I want to inquire about the 3-Day "Eastern Ghats Mist & Lambasingi Tour" for ${dest.name}.`
     }
   ];
 
@@ -174,7 +216,7 @@ function renderTourPackages(dest) {
         <a href="https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(pkg.whatsappMsg)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="background:#25D366; border-color:#25D366; display:inline-flex; align-items:center; gap:6px;">
           💬 Book / Inquire via WhatsApp
         </a>
-        <a href="mailto:${adminEmail}?subject=Tour%20Package%20Inquiry:%20${encodeURIComponent(pkg.title)}&body=${encodeURIComponent(pkg.whatsappMsg)}" class="btn btn-sm btn-outline">
+        <a href="mailto:${adminEmails}?subject=Tour%20Package%20Inquiry:%20${encodeURIComponent(pkg.title)}&body=${encodeURIComponent(pkg.whatsappMsg)}" class="btn btn-sm btn-outline">
           ✉ Inquire via Email
         </a>
         <a href="tel:+916281429422" class="btn btn-sm btn-outline" title="Call Visakha Tourism Concierge">
@@ -200,6 +242,7 @@ function renderGallery(photos, primaryUrl, destName) {
     return;
   }
 
+  if (galleryCard) galleryCard.style.display = 'block';
   galleryContainer.innerHTML = allPhotos.map(photo => `
     <div class="gallery-item" onclick="window.openLightbox('${photo.imageUrl}')">
       <img src="${photo.imageUrl}" alt="${photo.altText || destName}" loading="lazy" onerror="this.src='${primaryUrl}'">
@@ -207,45 +250,65 @@ function renderGallery(photos, primaryUrl, destName) {
   `).join('');
 }
 
-async function loadNearbyAttractions(destinationId) {
+function loadNearbyAttractions(destinationId, currentLat, currentLng) {
   const container = document.getElementById('nearby-grid');
   if (!container) return;
 
-  try {
-    const res = await api.get(`/destinations/${destinationId}/nearby?limit=4`);
-    const nearby = res.data || [];
+  // Immediate local calculation using Haversine formula
+  const others = FALLBACK_DESTINATIONS.filter(d => d.id !== destinationId);
+  if (currentLat && currentLng) {
+    others.forEach(d => {
+      d._dist = haversineDistance(currentLat, currentLng, d.latitude, d.longitude);
+      d._distFormatted = d._dist < 1 ? `${Math.round(d._dist * 1000)} m away` : `${d._dist.toFixed(1)} km away`;
+    });
+    others.sort((a, b) => a._dist - b._dist);
+  }
 
-    if (nearby.length === 0) {
-      container.innerHTML = '<p class="text-muted">No nearby attractions recorded within proximity.</p>';
-      return;
+  const nearby = others.slice(0, 4);
+  renderNearbyItems(nearby, container);
+
+  // Background server fetch
+  api.get(`/destinations/${destinationId}/nearby?limit=4`).then(res => {
+    if (res.data && res.data.length > 0) {
+      renderNearbyItems(res.data, container);
     }
+  }).catch(() => {});
+}
 
-    container.innerHTML = nearby.map(item => `
-      <div class="nearby-card">
-        <div class="nearby-media">
-          <img src="${item.primaryImageUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'">
-          <span class="nearby-distance-badge">📍 ${item.distanceFormatted}</span>
-        </div>
-        <div class="nearby-body">
-          <h4 class="nearby-title">
-            <a href="/destination-details.html?slug=${item.slug}">${item.name}</a>
-          </h4>
-          <p class="nearby-desc">${item.shortDescription}</p>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;">
-            <a href="${item.directionsUrl}" target="_blank" rel="noopener noreferrer" style="font-size:0.8rem;font-weight:600;color:var(--primary);">
-              🗺️ Map Directions
-            </a>
-            <a href="/destination-details.html?slug=${item.slug}" class="btn btn-sm btn-outline">
-              View
-            </a>
-          </div>
+function renderNearbyItems(items, container) {
+  container.innerHTML = items.map(item => `
+    <div class="nearby-card">
+      <div class="nearby-media">
+        <img src="${item.primaryImageUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'">
+        <span class="nearby-distance-badge">📍 ${item.distanceFormatted || item._distFormatted || 'Nearby'}</span>
+      </div>
+      <div class="nearby-body">
+        <h4 class="nearby-title">
+          <a href="/destination-details.html?slug=${item.slug}">${item.name}</a>
+        </h4>
+        <p class="nearby-desc">${item.shortDescription}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;">
+          <a href="${item.directionsUrl}" target="_blank" rel="noopener noreferrer" style="font-size:0.8rem;font-weight:600;color:var(--primary);">
+            🗺️ Map Directions
+          </a>
+          <a href="/destination-details.html?slug=${item.slug}" class="btn btn-sm btn-outline">
+            View
+          </a>
         </div>
       </div>
-    `).join('');
-  } catch (err) {
-    console.error('Failed to load nearby destinations:', err);
-    container.innerHTML = '<p class="text-muted">Unable to load nearby attractions.</p>';
-  }
+    </div>
+  `).join('');
+}
+
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
 }
 
 function initShareButton() {
