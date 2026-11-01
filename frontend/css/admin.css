@@ -368,3 +368,75 @@
     margin-left: 0;
   }
 }
+
+
+/* ==========================================================================
+   Admin Dark Theme System & Overrides
+   ========================================================================== */
+[data-theme="dark"] .admin-layout {
+  background-color: #0b1120;
+}
+
+[data-theme="dark"] .admin-topbar {
+  background-color: #131c31;
+  border-bottom-color: #1e293b;
+}
+
+[data-theme="dark"] .admin-page-title {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .admin-user-pill {
+  background-color: #1a243b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .data-card,
+[data-theme="dark"] .admin-card,
+[data-theme="dark"] .photo-manager-card {
+  background-color: #131c31;
+  border-color: #1e293b;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .stat-val {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .stat-label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .data-card-title {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .admin-table th {
+  background-color: #1a243b;
+  color: #94a3b8;
+  border-bottom-color: #1e293b;
+}
+
+[data-theme="dark"] .admin-table td {
+  border-bottom-color: #1e293b;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .admin-table tr:hover {
+  background-color: #1e293b;
+}
+
+[data-theme="dark"] .table-meta-sub {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .file-dropzone {
+  background-color: #1a243b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .photo-manager-actions {
+  background-color: #1a243b;
+}

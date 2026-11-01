@@ -52,9 +52,17 @@ export function updateNavAuth() {
   const navActions = document.querySelector('.nav-actions');
   if (!navActions) return;
 
+  const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const isDark = currentTheme === 'dark';
+  const themeToggleHtml = `
+    <button class="theme-toggle-btn" id="nav-theme-toggle-btn" type="button" aria-label="${isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}" title="${isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}">
+      <span class="theme-icon">${isDark ? '&#x2600;&#xFE0F;' : '&#x1F319;'}</span>
+    </button>
+  `;
+
   if (isAdmin()) {
-    const user = getUser() || { name: 'Admin' };
     navActions.innerHTML = `
+      ${themeToggleHtml}
       <a href="/admin-dashboard.html" class="btn btn-sm btn-outline" style="background:#0284c7;color:#fff;border-color:#0284c7;">⚙ Admin Dashboard</a>
       <button id="admin-nav-logout-btn" class="btn btn-sm btn-outline" style="color:var(--danger);cursor:pointer;">Sign Out</button>
     `;
@@ -65,6 +73,7 @@ export function updateNavAuth() {
     });
   } else {
     navActions.innerHTML = `
+      ${themeToggleHtml}
       <a href="/admin-login.html" class="btn btn-sm btn-outline" title="Administrator Portal">Admin Login</a>
     `;
   }

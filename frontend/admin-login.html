@@ -16,6 +16,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Portal Login - Visakha Tourism</title>
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('vt_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     body {
@@ -35,9 +45,14 @@
         <img src="/images/logo.svg" alt="Visakha Tourism" style="width:34px; height:34px; border-radius:8px;">
         <span>Visakha Tourism</span>
       </a>
-      <a href="/index.html" class="btn btn-sm btn-outline" style="border-color:rgba(255,255,255,0.25); color:#ffffff; background:transparent;">
-        ← Back to Public Website
-      </a>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="theme-toggle-btn" id="admin-theme-toggle-btn" type="button" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">&#x1F319;</span>
+        </button>
+        <a href="/index.html" class="btn btn-sm btn-outline" style="border-color:rgba(255,255,255,0.25); color:#ffffff; background:transparent;">
+          ← Back to Public Website
+        </a>
+      </div>
     </div>
   </header>
 
@@ -128,5 +143,6 @@
       }
     });
   </script>
+  <script type="module" src="/js/theme.js"></script>
 </body>
 </html>

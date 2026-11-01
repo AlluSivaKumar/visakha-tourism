@@ -17,6 +17,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Travel Itineraries & Budget Planner - Visakha Tourism</title>
   <meta name="description" content="Curated 2, 3, 4, and 5-day Visakhapatnam itineraries arranged in optimal geographic order with smart budget management and transport advice.">
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('vt_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     /* Itinerary specific styles */
@@ -296,7 +306,10 @@
       </ul>
 
       <div class="nav-actions">
-        <!-- Managed dynamically by auth.js -->
+        <!-- Managed dynamically by auth.js & theme.js -->
+        <button class="theme-toggle-btn" id="nav-theme-toggle-btn" type="button" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">&#x1F319;</span>
+        </button>
         <a href="/admin-login.html" class="btn btn-sm btn-outline">Admin Login</a>
       </div>
 
@@ -508,5 +521,6 @@
 
   <script type="module" src="/js/auth.js"></script>
   <script type="module" src="/js/itineraries.js"></script>
+  <script type="module" src="/js/theme.js"></script>
 </body>
 </html>

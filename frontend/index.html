@@ -17,6 +17,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visakha Tourism - Explore the City of Destiny</title>
   <meta name="description" content="Discover Visakhapatnam's golden beaches, misty Eastern Ghats hills, historic maritime museums, and ancient Buddhist heritage.">
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('vt_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <script type="application/ld+json">
@@ -83,7 +93,10 @@
       </ul>
 
       <div class="nav-actions">
-        <!-- Managed dynamically by auth.js -->
+        <!-- Managed dynamically by auth.js & theme.js -->
+        <button class="theme-toggle-btn" id="nav-theme-toggle-btn" type="button" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">&#x1F319;</span>
+        </button>
         <a href="/admin-login.html" class="btn btn-sm btn-outline">Admin Login</a>
       </div>
 
@@ -366,5 +379,6 @@
 
   <script type="module" src="/js/auth.js"></script>
   <script type="module" src="/js/main.js"></script>
+  <script type="module" src="/js/theme.js"></script>
 </body>
 </html>

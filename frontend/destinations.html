@@ -17,6 +17,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All Destinations - Visakha Tourism</title>
   <meta name="description" content="Browse over 50 verified attractions across Visakhapatnam, Araku Valley, Bheemili, and Eastern Ghats.">
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('vt_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     .filter-bar {
@@ -106,7 +116,10 @@
       </ul>
 
       <div class="nav-actions">
-        <!-- Managed dynamically by auth.js -->
+        <!-- Managed dynamically by auth.js & theme.js -->
+        <button class="theme-toggle-btn" id="nav-theme-toggle-btn" type="button" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">&#x1F319;</span>
+        </button>
         <a href="/admin-login.html" class="btn btn-sm btn-outline">Admin Login</a>
       </div>
 
@@ -223,5 +236,6 @@
 
   <script type="module" src="/js/auth.js"></script>
   <script type="module" src="/js/destinations.js"></script>
+  <script type="module" src="/js/theme.js"></script>
 </body>
 </html>

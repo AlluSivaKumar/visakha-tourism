@@ -17,6 +17,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Destination Details - Visakha Tourism</title>
   <meta name="description" content="Discover detailed guides, photos, travel advice, and curated tour packages for premier attractions in Visakhapatnam.">
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('vt_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -38,7 +48,10 @@
       </ul>
 
       <div class="nav-actions">
-        <!-- Managed dynamically by auth.js -->
+        <!-- Managed dynamically by auth.js & theme.js -->
+        <button class="theme-toggle-btn" id="nav-theme-toggle-btn" type="button" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">&#x1F319;</span>
+        </button>
         <a href="/admin-login.html" class="btn btn-sm btn-outline">Admin Login</a>
       </div>
 
@@ -174,10 +187,10 @@
         </div>
 
         <!-- Google Maps Quick Box -->
-        <div class="detail-card" style="text-align:center; background:#f0f9ff; border-color:#bae6fd;">
+        <div class="detail-card maps-quick-box" style="text-align:center;">
           <div style="font-size:2.5rem; margin-bottom:12px;">🧭</div>
-          <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:8px; color:#0369a1;">Navigate with Google Maps</h3>
-          <p style="font-size:0.88rem; color:#0284c7; margin-bottom:18px;">
+          <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:8px;">Navigate with Google Maps</h3>
+          <p style="font-size:0.88rem; margin-bottom:18px;">
             Get step-by-step turn directions, estimated drive times, and transit options directly on your mobile device.
           </p>
           <a id="sidebar-directions-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width:100%;">
@@ -258,5 +271,6 @@
     const target = document.getElementById('detail-directions-btn');
     if (target) observer.observe(target, { attributes: true, attributeFilter: ['href'] });
   </script>
+  <script type="module" src="/js/theme.js"></script>
 </body>
 </html>

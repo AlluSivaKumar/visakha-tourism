@@ -16,6 +16,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Destination Editor - Visakha Tourism Admin</title>
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('vt_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/admin.css">
 </head>
@@ -58,9 +68,14 @@
         <div class="admin-breadcrumb">
           <a href="/admin-destinations.html" style="color:var(--text-muted);">Destinations</a> / <span id="form-heading">Add New Destination</span>
         </div>
-        <div class="admin-user-pill">
-          <div class="admin-avatar">A</div>
-          <span id="admin-user-name" style="font-weight:700; font-size:0.92rem;">Administrator</span>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button class="theme-toggle-btn" id="admin-theme-toggle-btn" type="button" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+            <span class="theme-icon">&#x1F319;</span>
+          </button>
+          <div class="admin-user-pill">
+            <div class="admin-avatar">A</div>
+            <span id="admin-user-name" style="font-weight:700; font-size:0.92rem;">Administrator</span>
+          </div>
         </div>
       </header>
 
@@ -221,5 +236,6 @@
   </div>
 
   <script type="module" src="/js/admin.js"></script>
+  <script type="module" src="/js/theme.js"></script>
 </body>
 </html>
